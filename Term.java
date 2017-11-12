@@ -18,6 +18,7 @@ public class Term implements Parcelable{
     private ArrayList<Course> termCourseArray = new ArrayList<>();
 
     private static ArrayList<Term> allTermArray = new ArrayList<>();
+
     private static int highestTermId = 0;
 
     public Term(){
@@ -25,7 +26,7 @@ public class Term implements Parcelable{
     }
 
     public Term(String termTitle, String termStart, String termEnd, ArrayList<Course> termCourseArray) {
-        this.termId = highestTermId + 1;
+        this.termId = highestTermId;
         highestTermId++;
 
         this.termTitle = termTitle;

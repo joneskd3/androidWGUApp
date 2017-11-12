@@ -25,7 +25,7 @@ public class Mentor implements Parcelable{
     }
 
     public Mentor (String mentorName, String mentorPhone, String mentorEmail){
-        this.mentorId = highestMentorId + 1;
+        this.mentorId = highestMentorId;
         highestMentorId++;
 
         this.mentorName = mentorName;

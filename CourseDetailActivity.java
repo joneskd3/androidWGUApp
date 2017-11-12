@@ -15,9 +15,11 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class CourseDetailView extends AppCompatActivity {
+public class CourseDetailActivity extends AppCompatActivity {
 
     public Course selectedCourse; //currently displayed Course object
+
+
     private final int REQUEST_CODE = 20; //used to determine result type
 
     @Override
@@ -26,10 +28,11 @@ public class CourseDetailView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_course_detail);
 
-        selectedCourse = Course.getAllCourseArray().get(0);//returns first course
+        selectedCourse = getIntent().getParcelableExtra("courseObject");
+        selectedCourse = Course.getAllCourseArray().get(selectedCourse.getCourseId());
 
         /* Set up interface */
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setDisplayHomeAsUpEnabled(true);
@@ -49,7 +52,7 @@ public class CourseDetailView extends AppCompatActivity {
             formattedMentorArray.add("No Mentor Assigned"); //If no mentors assigned
         }
 
-        ListView mentorList = (ListView) findViewById(R.id.list_mentor);
+        ListView mentorList = findViewById(R.id.list_mentor);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, formattedMentorArray);
         mentorList.setAdapter(arrayAdapter);
     }
@@ -66,7 +69,7 @@ public class CourseDetailView extends AppCompatActivity {
             formattedAssessmentArray.add("No Assessment Assigned");
         }
 
-        ListView assessmentList = (ListView) findViewById(R.id.list_assessment);
+        ListView assessmentList = findViewById(R.id.list_assessment);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, formattedAssessmentArray);
         assessmentList.setAdapter(arrayAdapter);
     }
@@ -74,12 +77,12 @@ public class CourseDetailView extends AppCompatActivity {
     public void populateFields(Course testCourse) {
 
         /*Field Variables*/
-        TextView courseTitleField = (TextView) findViewById(R.id.text_title);
-        TextView courseStartDateField = (TextView) findViewById(R.id.term_edit_text_start_date);
-        TextView courseEndDateField = (TextView) findViewById(R.id.term_edit_text_end_date);
-        ImageView courseStartReminder = (ImageView) findViewById(R.id.img_start_reminder);
-        ImageView courseEndReminder = (ImageView) findViewById(R.id.img_end_reminder);
-        TextView courseStatus = (TextView) findViewById(R.id.text_status);
+        TextView courseTitleField = findViewById(R.id.text_title);
+        TextView courseStartDateField = findViewById(R.id.term_edit_text_start_date);
+        TextView courseEndDateField = findViewById(R.id.term_edit_text_end_date);
+        ImageView courseStartReminder = findViewById(R.id.img_start_reminder);
+        ImageView courseEndReminder = findViewById(R.id.img_end_reminder);
+        TextView courseStatus = findViewById(R.id.text_status);
 
         /*Update Fields*/
         courseTitleField.setText(testCourse.getCourseName());
@@ -112,7 +115,7 @@ public class CourseDetailView extends AppCompatActivity {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             selectedCourse = data.getParcelableExtra("courseObject");
             populateFields(selectedCourse);
-            Toast.makeText(this, "Course Saved", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         }
     }
     @Override
@@ -126,7 +129,7 @@ public class CourseDetailView extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.edit_button:
-                Intent intent = new Intent(this, CourseDetailEdit.class);
+                Intent intent = new Intent(this, CourseEditActivity.class);
                 intent.putExtra("courseObject", selectedCourse);
                 intent.putExtra("mode", 2); // pass arbitrary data to launched activity
                 intent.putExtra("editCourse",true);

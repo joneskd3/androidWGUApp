@@ -16,10 +16,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 
-public class CourseDetailEdit extends AppCompatActivity {
+public class CourseEditActivity extends AppCompatActivity {
 
     private Course selectedCourse;
-    private Boolean editCourse;
 
     private TextView courseTitleField;
     private TextView courseStartDateField;
@@ -34,15 +33,17 @@ public class CourseDetailEdit extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_course_detail_edit); //sets layout
+        setContentView(R.layout.activity_course_edit); //sets layout
 
         //retrieves Course object from calling activity
         selectedCourse = getIntent().getParcelableExtra("courseObject");
-        editCourse = getIntent().getBooleanExtra("editCourse",false);
+        selectedCourse = Course.getAllCourseArray().get(selectedCourse.getCourseId());
+
+
 
 
         /* Set up interface */
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setDisplayHomeAsUpEnabled(true);
@@ -51,14 +52,14 @@ public class CourseDetailEdit extends AppCompatActivity {
     }
 
     public void populateFieldVariables(){
-        courseTitleField = (TextView) findViewById(R.id.text_title);
-        courseStartDateField = (TextView) findViewById(R.id.term_edit_text_start_date);
-        courseEndDateField = (TextView) findViewById(R.id.term_edit_text_end_date);
-        courseStartReminderField = (Switch) findViewById(R.id.img_start_reminder);
-        courseEndReminderField = (Switch) findViewById(R.id.switch_stop_reminder);
-        courseStatusField = (Spinner) findViewById(R.id.text_status);
-        mentorListField = (LinearLayout) findViewById(R.id.list_mentor);
-        assessmentListField = (LinearLayout) findViewById(R.id.list_assessment);
+        courseTitleField = findViewById(R.id.text_title);
+        courseStartDateField = findViewById(R.id.term_edit_text_start_date);
+        courseEndDateField = findViewById(R.id.term_edit_text_end_date);
+        courseStartReminderField = findViewById(R.id.img_start_reminder);
+        courseEndReminderField = findViewById(R.id.switch_stop_reminder);
+        courseStatusField = findViewById(R.id.text_status);
+        mentorListField = findViewById(R.id.list_mentor);
+        assessmentListField = findViewById(R.id.list_assessment);
     }
     public void populateFields(Course testCourse){
 

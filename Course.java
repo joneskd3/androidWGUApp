@@ -44,7 +44,7 @@ public class Course implements Parcelable {
                   String courseEndDate, boolean courseEndAlert, String courseStatus,
                   ArrayList<Mentor> courseMentor, ArrayList<Assessment> courseAssessment,
                   ArrayList<String> courseNotes) {
-        this.courseId = highestCourseId + 1;
+        this.courseId = highestCourseId;
         highestCourseId++;
 
         this.courseName = courseName;
@@ -147,6 +147,7 @@ public class Course implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(courseId);
         parcel.writeString(courseName);
         parcel.writeString(courseStartDate);
         parcel.writeInt(courseStartAlert ? 1 : 0);
@@ -158,6 +159,7 @@ public class Course implements Parcelable {
         //parcel.writeValue(courseNotes);
     }
     private Course(Parcel in) {
+        courseId = in.readInt();
         courseName = in.readString();
         courseStartDate = in.readString();
         courseStartAlert = in.readInt() != 0;

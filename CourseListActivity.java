@@ -13,53 +13,54 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class TermListActivity extends AppCompatActivity {
+public class CourseListActivity extends AppCompatActivity {
 
     private final int REQUEST_CODE = 20; //used to determine result type
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_term_list);
+        setContentView(R.layout.activity_course_list);
 
-
-          /* Set up interface */
+                  /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
-        populateTermList();
+        populateCourseList();
     }
     @Override
     public void onResume() {
         super.onResume(); // Always call the superclass method first
 
-        populateTermList();
+        populateCourseList();
+
+
     }
 
+    public void populateCourseList(){
 
-    public void populateTermList(){
 
+        final ListView courseList = findViewById(R.id.list_courses);
 
-        final ListView termList = findViewById(R.id.list_terms);
-
-        ArrayAdapter<Term> arrayAdapter = new ArrayAdapter<Term>(this, android.R.layout.simple_list_item_1, Term.getAllTermArray());
+        ArrayAdapter<Course> arrayAdapter = new ArrayAdapter<Course>(this, android.R.layout.simple_list_item_1, Course.getAllCourseArray());
         arrayAdapter.notifyDataSetChanged();
-        termList.setAdapter(arrayAdapter);
+        courseList.setAdapter(arrayAdapter);
 
 
-        termList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        courseList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long row) {
 
-                Term selectedTerm = (Term) termList.getItemAtPosition(position);
+                Course selectedCourse = (Course) courseList.getItemAtPosition(position);
 
-                Intent intent = new Intent(TermListActivity.this, TermDetailActivity.class);
-                intent.putExtra("termObject", selectedTerm);
+                Intent intent = new Intent(CourseListActivity.this, CourseDetailActivity.class);
+                intent.putExtra("courseObject", selectedCourse);
                 intent.putExtra("mode", 2); // pass arbitrary data to launched activity
+                //intent.putExtra("editCourse",true);
                 startActivity(intent);
+
             }
         });
     }
@@ -74,12 +75,12 @@ public class TermListActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.toolbar_add_button:
-                Intent intent = new Intent(this, TermEditActivity.class);
+                Intent intent = new Intent(this, CourseEditActivity.class);
 
-                //Term newTerm = new Term();
+                Course newCourse = new Course();
 
-                //intent.putExtra("termObject", newTerm);
-                intent.putExtra("New", true); // pass arbitrary data to launched activity
+                intent.putExtra("courseObject", newCourse);
+                intent.putExtra("mode", 2); // pass arbitrary data to launched activity
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;
 
@@ -94,9 +95,9 @@ public class TermListActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            populateTermList();
+            //selectedCourse = data.getParcelableExtra("courseObject");
+            populateCourseList();
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         }
     }
 }
-

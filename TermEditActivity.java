@@ -12,9 +12,10 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class TermEditView extends AppCompatActivity {
+public class TermEditActivity extends AppCompatActivity {
 
     private Term selectedTerm;
+    private Boolean newTerm = false;
 
     private TextView termTitleField;
     private TextView termStartDateField;
@@ -25,17 +26,27 @@ public class TermEditView extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_term_edit_view);
+        setContentView(R.layout.activity_term_edit);
 
-        selectedTerm = getIntent().getParcelableExtra("termObject");
+        newTerm = getIntent().getBooleanExtra("New",false);
+
+        populateFieldVariables();
+
+        if (newTerm){
+            populateNewTermCourses();
+        } else {
+            selectedTerm = getIntent().getParcelableExtra("termObject");
+            selectedTerm = Term.getAllTermArray().get(selectedTerm.getTermId());
+            populateFields();
+        }
 
         /* Set up interface */
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
-        populateFields();
+
     }
     public void updateTerm(){
 
@@ -52,14 +63,13 @@ public class TermEditView extends AppCompatActivity {
     }
 
     public void populateFieldVariables(){
-        termTitleField = (TextView) findViewById(R.id.term_edit_text_title);
-        termStartDateField = (TextView) findViewById(R.id.term_edit_text_start_date);
-        termEndDateField = (TextView) findViewById(R.id.term_edit_text_end_date);
-        termCourseListField = (LinearLayout) findViewById(R.id.term_edit_list_course);
+        termTitleField = findViewById(R.id.term_edit_text_title);
+        termStartDateField = findViewById(R.id.term_edit_text_start_date);
+        termEndDateField = findViewById(R.id.term_edit_text_end_date);
+        termCourseListField = findViewById(R.id.term_edit_list_course);
     }
     public void populateFields() {
 
-        populateFieldVariables();
 
         /*Update Fields*/
         termTitleField.setText(selectedTerm.getTermTitle());
@@ -88,6 +98,20 @@ public class TermEditView extends AppCompatActivity {
             termCourseListField.addView(courseCheckboxField);
         }
     }
+    public void populateNewTermCourses(){
+        for(Course course : Course.getAllCourseArray()){
+
+            CheckBox courseCheckboxField = new CheckBox(this);
+
+            courseCheckboxField.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            ));
+            courseCheckboxField.setText(course.toString());
+
+            termCourseListField.addView(courseCheckboxField);
+        }
+    }
     public void updateTermCourse(){
         selectedTerm.getTermCourseArray().clear(); //
 
@@ -111,6 +135,9 @@ public class TermEditView extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.button_save:
 
+                if(newTerm){
+                    selectedTerm = new Term();
+                }
                updateTerm();//updates term info
 
                 Intent data = new Intent();
