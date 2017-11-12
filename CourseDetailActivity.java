@@ -63,7 +63,7 @@ public class CourseDetailActivity extends AppCompatActivity {
 
         if (selectedCourse.getCourseAssessmentArray().size() > 0) {
             for (Assessment assessment : selectedCourse.getCourseAssessmentArray()) {
-                formattedAssessmentArray.add(assessment.getAssessmentDescription());
+                formattedAssessmentArray.add(assessment.getAssessmentTitle());
             }
         } else {
             formattedAssessmentArray.add("No Assessment Assigned");
@@ -78,11 +78,11 @@ public class CourseDetailActivity extends AppCompatActivity {
 
         /*Field Variables*/
         TextView courseTitleField = findViewById(R.id.text_title);
-        TextView courseStartDateField = findViewById(R.id.term_edit_text_start_date);
-        TextView courseEndDateField = findViewById(R.id.term_edit_text_end_date);
+        TextView courseStartDateField = findViewById(R.id.text_phone);
+        TextView courseEndDateField = findViewById(R.id.text_email);
         ImageView courseStartReminder = findViewById(R.id.img_start_reminder);
         ImageView courseEndReminder = findViewById(R.id.img_end_reminder);
-        TextView courseStatus = findViewById(R.id.text_status);
+        TextView courseStatus = findViewById(R.id.text_type);
 
         /*Update Fields*/
         courseTitleField.setText(testCourse.getCourseName());

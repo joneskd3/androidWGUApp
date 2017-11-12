@@ -20,8 +20,12 @@ public class Assessment implements Parcelable {
 
     private static ArrayList<Assessment> assessmentArrayList = new ArrayList<>();
 
+    public Assessment(){
+        this("","","",false);
+    }
+
     public Assessment(String assessmentType, String assessmentDescription, String assessmentDueDate, boolean assessmentDueReminder) {
-        this.assessmentId = highestAssessmentId + 1;
+        this.assessmentId = highestAssessmentId;
         highestAssessmentId++;
         this.assessmentType = assessmentType;
         this.assessmentDescription = assessmentDescription;
@@ -47,11 +51,11 @@ public class Assessment implements Parcelable {
         this.assessmentType = assessmentType;
     }
 
-    public String getAssessmentDescription() {
+    public String getAssessmentTitle() {
         return assessmentDescription;
     }
 
-    public void setAssessmentDescription(String assessmentDescription) {
+    public void setAssessmentTitle(String assessmentDescription) {
         this.assessmentDescription = assessmentDescription;
     }
 
@@ -125,4 +129,10 @@ public class Assessment implements Parcelable {
             return new Assessment[size];
         }
     };
+
+    @Override
+    public String toString() {
+
+        return this.getAssessmentTitle() + " [" + this.getAssessmentType() + "]";
+    }
 }

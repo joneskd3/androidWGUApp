@@ -53,11 +53,11 @@ public class CourseEditActivity extends AppCompatActivity {
 
     public void populateFieldVariables(){
         courseTitleField = findViewById(R.id.text_title);
-        courseStartDateField = findViewById(R.id.term_edit_text_start_date);
-        courseEndDateField = findViewById(R.id.term_edit_text_end_date);
+        courseStartDateField = findViewById(R.id.text_phone);
+        courseEndDateField = findViewById(R.id.text_email);
         courseStartReminderField = findViewById(R.id.img_start_reminder);
         courseEndReminderField = findViewById(R.id.switch_stop_reminder);
-        courseStatusField = findViewById(R.id.text_status);
+        courseStatusField = findViewById(R.id.text_type);
         mentorListField = findViewById(R.id.list_mentor);
         assessmentListField = findViewById(R.id.list_assessment);
     }
@@ -108,7 +108,7 @@ public class CourseEditActivity extends AppCompatActivity {
                     ViewGroup.LayoutParams.MATCH_PARENT
             ));
 
-            assessmentCheckboxField.setText(assessment.getAssessmentDescription());
+            assessmentCheckboxField.setText(assessment.getAssessmentTitle());
 
             for(Assessment courseAssessment : selectedCourse.getCourseAssessmentArray()){
                 if (assessment.getAssessmentId() == courseAssessment.getAssessmentId()){

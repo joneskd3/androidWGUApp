@@ -33,6 +33,14 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, CourseListActivity.class);
         startActivity(intent);
     }
+    public void handleAssessmentsButton(View view){
+        Intent intent = new Intent(this, AssessmentListActivity.class);
+        startActivity(intent);
+    }
+    public void handleMentorsButton(View view){
+        Intent intent = new Intent(this, MentorListActivity.class);
+        startActivity(intent);
+    }
     /*Creates test data */
     public void createTestData() {
 

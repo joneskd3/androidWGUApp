@@ -64,8 +64,8 @@ public class TermEditActivity extends AppCompatActivity {
 
     public void populateFieldVariables(){
         termTitleField = findViewById(R.id.term_edit_text_title);
-        termStartDateField = findViewById(R.id.term_edit_text_start_date);
-        termEndDateField = findViewById(R.id.term_edit_text_end_date);
+        termStartDateField = findViewById(R.id.text_phone);
+        termEndDateField = findViewById(R.id.text_email);
         termCourseListField = findViewById(R.id.term_edit_list_course);
     }
     public void populateFields() {
