@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class NoteEditActivity extends AppCompatActivity {
 
@@ -29,14 +30,13 @@ public class NoteEditActivity extends AppCompatActivity {
 
         populateFieldVariables();
 
-
-
         if (newNote) {
             selectedCourse = getIntent().getParcelableExtra("courseObject");
             selectedCourse = Course.allCourseMap.get(selectedCourse.getCourseId());
         } else {
             selectedNote = getIntent().getParcelableExtra("noteObject");
             selectedNote = Note.allNoteMap.get(selectedNote.getNoteId());
+            selectedCourse = Course.allCourseMap.get(selectedNote.getCourseId());
             populateFields();
         }
 
@@ -55,10 +55,10 @@ public class NoteEditActivity extends AppCompatActivity {
         String noteText = noteTextField.getText().toString();
 
         selectedNote.setNoteTitle(noteTitle);
-
         selectedNote.setNoteText(noteText);
-        selectedNote.setCourseId(selectedCourse.getCourseId());
-
+        if (newNote){
+            selectedNote.setCourseId(selectedCourse.getCourseId());
+        }
     }
 
     public void populateFieldVariables(){
@@ -78,6 +78,7 @@ public class NoteEditActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.save, menu);
+
         return true;
     }
 
@@ -88,16 +89,30 @@ public class NoteEditActivity extends AppCompatActivity {
 
                 if (newNote) {
                     selectedNote = new Note();
-                    //selectedCourse.addToCourseNoteArray(selectedNote);
                 }
                 updateNote();//updates note info
 
                 Intent data = new Intent();
                 data.putExtra("noteObject", selectedNote);
                 setResult(RESULT_OK, data); // set result code and bundle data for response
+                Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
                 finish(); // closes the activity, pass data to parent
 
                 return true;
+
+            case R.id.button_delete:
+
+                selectedNote.deleteFromDB();
+
+                Intent deleteData = new Intent(this, NoteListActivity.class);
+                deleteData.putExtra("courseObject",selectedCourse);
+                setResult(RESULT_OK, deleteData); // set result code and bundle data for response
+                Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
+                startActivityForResult(deleteData, 20);
+
+                return true;
+
+
 
             case android.R.id.home: //handles back button
                 NavUtils.navigateUpFromSameTask(this);

@@ -108,13 +108,13 @@ public class Assessment implements Parcelable {
     /*Database Methods - add insert to constructor + add update into setters*/
     public void getHighestId(){
 
-        String query = "SELECT COUNT(*) AS count FROM assessment";
+        String query = "SELECT MAX (assessmentId) FROM assessment";
 
         Cursor cursor = appDatabase.rawQuery(query,null);
 
         cursor.moveToFirst();
 
-        highestAssessmentId = cursor.getInt(0);
+        highestAssessmentId = cursor.getInt(0) + 1;
     }
     public void insertIntoDB(){
         appDatabase.execSQL(
@@ -138,6 +138,9 @@ public class Assessment implements Parcelable {
                         "assessmentReminder = " + (this.assessmentReminder ? 1 : 0) + " " +
                         "WHERE assessmentId = " + this.assessmentId
         );
+    }
+    public void deleteFromDB(){
+        appDatabase.execSQL("DELETE from assessment WHERE assessmentId = " + this.assessmentId);
     }
     public static void createFromDB() {
 

@@ -192,7 +192,6 @@ public class CourseDetailActivity extends AppCompatActivity {
                 Intent noteIntent = new Intent(this, NoteListActivity.class);
                 noteIntent.putExtra("courseObject", selectedCourse);
                 noteIntent.putExtra("mode", 2); // pass arbitrary data to launched activity
-                noteIntent.putExtra("newNote",true);
                 startActivityForResult(noteIntent, REQUEST_CODE);
                 return true;
 

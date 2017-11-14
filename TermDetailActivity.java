@@ -36,8 +36,11 @@ public class TermDetailActivity extends AppCompatActivity {
 
 
         //retrieves Course object from calling activity
-        selectedTerm = getIntent().getParcelableExtra("termObject");
-        selectedTerm = Term.allTermMap.get(selectedTerm.getTermId());
+        if(getIntent().getParcelableExtra("termObject") != null){
+            selectedTerm = getIntent().getParcelableExtra("termObject");
+            selectedTerm = Term.allTermMap.get(selectedTerm.getTermId());
+
+        }
         //editTerm = getIntent().getBooleanExtra("editCourse",false);
 
 

@@ -85,6 +85,7 @@ public class Note implements Parcelable{
 
     public void setCourseId(int courseId) {
         this.courseId = courseId;
+        this.updateDB();
     }
     @Override
     public int describeContents() {
@@ -124,13 +125,13 @@ public class Note implements Parcelable{
 
     public void getHighestId(){
 
-        String query = "SELECT COUNT(*) AS count FROM note";
+        String query = "SELECT MAX(noteId) FROM note";
 
         Cursor cursor = appDatabase.rawQuery(query,null);
 
         cursor.moveToFirst();
 
-        highestNoteId = cursor.getInt(0);
+        highestNoteId = cursor.getInt(0) + 1;
     }
     //add to constructor
     public void insertIntoDB(){
@@ -153,6 +154,9 @@ public class Note implements Parcelable{
                         "courseId = " + this.courseId + " " +
                     "WHERE noteId = " + this.noteId
         );
+    }
+    public void deleteFromDB(){
+        appDatabase.execSQL("DELETE from note WHERE noteId = " + this.noteId);
     }
     public static void createFromDB() {
 

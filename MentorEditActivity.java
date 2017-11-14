@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MentorEditActivity extends AppCompatActivity {
 
@@ -34,7 +35,7 @@ public class MentorEditActivity extends AppCompatActivity {
 
         if (!newMentor) {
             selectedMentor = getIntent().getParcelableExtra("mentorObject");
-            selectedMentor = Mentor.getAllMentorArray().get(selectedMentor.getMentorId());
+            selectedMentor = Mentor.allMentorMap.get(selectedMentor.getMentorId());
             populateFields();
         }
 
@@ -92,9 +93,18 @@ public class MentorEditActivity extends AppCompatActivity {
                 Intent data = new Intent();
                 data.putExtra("mentorObject", selectedMentor);
                 setResult(RESULT_OK, data); // set result code and bundle data for response
+                Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
                 finish(); // closes the activity, pass data to parent
 
                 return true;
+            case R.id.button_delete:
+
+                selectedMentor.deleteFromDB();
+
+                Intent deleteIntent = new Intent(this, MentorListActivity.class);
+                startActivity(deleteIntent);
+                Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
+
 
             case android.R.id.home: //handles back button
                 NavUtils.navigateUpFromSameTask(this);

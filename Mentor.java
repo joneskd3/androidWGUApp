@@ -99,13 +99,13 @@ public class Mentor implements Parcelable{
     /*Database Methods - add insert to constructor + add update into setters*/
     public void getHighestId(){
 
-        String query = "SELECT COUNT(*) AS count FROM mentor";
+        String query = "SELECT MAX(MentorId) FROM mentor";
 
         Cursor cursor = appDatabase.rawQuery(query,null);
 
         cursor.moveToFirst();
 
-        highestMentorId = cursor.getInt(0);
+        highestMentorId = cursor.getInt(0) + 1;
     }
     //add to constructor
     public void insertIntoDB(){
@@ -128,6 +128,11 @@ public class Mentor implements Parcelable{
                     "mentorEmail = '" + (this.mentorEmail ) + "' " +
                 "WHERE mentorId = " + this.mentorId
         );
+    }
+    public void deleteFromDB(){
+        appDatabase.execSQL("DELETE from Mentor WHERE mentorId = " + this.mentorId);
+        appDatabase.execSQL("DELETE from courseMentor WHERE mentorId = " + this.mentorId);
+
     }
     public static void createFromDB() {
 
@@ -196,6 +201,7 @@ public class Mentor implements Parcelable{
 
     @Override
     public String toString() {
-        return this.getMentorName();
+
+        return this.getMentorName() + "\nPhone: " + this.getMentorPhone() + "\nEmail: " + this.getMentorEmail();
     }
 }

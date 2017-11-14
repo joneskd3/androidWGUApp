@@ -27,7 +27,7 @@ public class AssessmentDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_assessment_detail);
 
         selectedAssessment = getIntent().getParcelableExtra("assessmentObject");
-        selectedAssessment = Assessment.getAllAssessmentArray().get(selectedAssessment.getAssessmentId());
+        selectedAssessment = Assessment.allAssessmentMap.get(selectedAssessment.getAssessmentId());
 
         /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);

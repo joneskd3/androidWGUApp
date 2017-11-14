@@ -1,8 +1,10 @@
 package com.example.hello.kjschedule;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -25,11 +27,16 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(myToolbar);
 
 
+        reminder();
+
+
+
+
 
         createDatabase();
 
-        //appDatabase.delete("term",null,null);
-      //appDatabase.execSQL("DROP TABLE IF EXISTS course");
+
+
 
         createMentorTable();
         Mentor.createFromDB();
@@ -46,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
         createCourseMentorTable();
         createTermTable();
 
+        createTermCourseTable();
+
         //createTestData();
 
         Course.createCourseFromDB();
@@ -54,6 +63,45 @@ public class MainActivity extends AppCompatActivity {
         createNoteTable();
         Note.createFromDB();
 
+    }
+
+    public void reminder(){
+        AlertDialog alerts = new AlertDialog.Builder(this).create();
+
+        alerts.setTitle("Reminder");
+        alerts.setMessage("Upcoming Exams");
+        alerts.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alerts.setButton(AlertDialog.BUTTON_NEGATIVE, "Disable Reminder",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alerts.show();
+    }
+    public void handleRemindersButton(View view){
+        AlertDialog alerts = new AlertDialog.Builder(this).create();
+
+        alerts.setTitle("Reminder");
+        alerts.setMessage("Upcoming Exams");
+        alerts.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alerts.setButton(AlertDialog.BUTTON_NEGATIVE, "Disable Reminder",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alerts.show();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -114,16 +162,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("DB ERROR", "Database Creation Error");
         }
-
-        // The database on the file system
-        File database = getApplicationContext().getDatabasePath("schedule.db");
-
-        // Check if the database exists
-        if (database.exists()) {
-            Toast.makeText(this, "Database Created", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Database Missing", Toast.LENGTH_SHORT).show();
-        }
     }
     public void createCourseTable() {
         appDatabase.execSQL("" +
@@ -180,6 +218,14 @@ public class MainActivity extends AppCompatActivity {
                 "termEnd VARCHAR);"
         );
     }
+    public void createTermCourseTable() {
+        appDatabase.execSQL("" +
+                "CREATE TABLE IF NOT EXISTS termCourse " +
+                "(termId INTEGER, " +
+                "courseId INTEGER, " +
+                "PRIMARY KEY (termId, courseId));"
+        );
+    }
     public void createNoteTable() {
         appDatabase.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS note " +
@@ -193,6 +239,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        appDatabase.delete("Course",null,null);
+        //appDatabase.delete("Course",null,null);
     }
+
+
 }

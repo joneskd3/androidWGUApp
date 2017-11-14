@@ -21,7 +21,6 @@ public class Term implements Parcelable{
     private String termName;
     private String termStart;
     private String termEnd;
-    private ArrayList<Course> termCourseArray = new ArrayList<>();
 
     private static ArrayList<Term> allTermArray = new ArrayList<>();
 
@@ -91,12 +90,25 @@ public class Term implements Parcelable{
 
     public ArrayList<Course> getTermCourseArray() {
 
+        ArrayList<Course> termCourseArray = new ArrayList<>();
+
+        String query = "SELECT * FROM termCourse WHERE termId = " + this.getTermId();
+        Cursor cursor = appDatabase.rawQuery(query, null);
+
+        int courseIdField = cursor.getColumnIndex("courseId");
+
+        if ( cursor.getCount() > 0)
+        {
+            cursor.moveToFirst();
+            do {
+                int courseId = cursor.getInt(courseIdField);
+                termCourseArray.add(Course.allCourseMap.get(courseId));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
         return termCourseArray;
     }
 
-    public void addToTermCourseArray(Course course) {
-        this.termCourseArray.add(course);
-    }
 
     public static ArrayList<Term> getAllTermArray() {
         ArrayList<Term> allTermArray = new ArrayList<>();
@@ -117,10 +129,6 @@ public class Term implements Parcelable{
         return allTermArray;
     }
 
-    public static void addToAllTermArray(Term term) {
-        Term.allTermArray.add(term);
-    }
-
     @Override
     public String toString() {
         return this.getTermName() + "\t[" + this.getTermStart() + " - " + this.getTermEnd() + "]";
@@ -137,27 +145,24 @@ public class Term implements Parcelable{
         parcel.writeString(termName);
         parcel.writeString(termStart);
         parcel.writeString(termEnd);
-        parcel.writeTypedList(termCourseArray);
     }
     private Term(Parcel in) {
         termId = in.readInt();
         termName = in.readString();
         termStart = in.readString();
         termEnd = in.readString();
-        in.readTypedList(termCourseArray, Course.CREATOR);
-
     }
 
     /*Database Methods - add insert to constructor + add update into setters*/
     public void getHighestId(){
 
-        String query = "SELECT COUNT(*) AS count FROM term";
+        String query = "SELECT MAX (termId) FROM term";
 
         Cursor cursor = appDatabase.rawQuery(query,null);
 
         cursor.moveToFirst();
 
-        highestTermId = cursor.getInt(0);
+        highestTermId = cursor.getInt(0) + 1;
     }
     //add to constructor
     public void insertIntoDB(){
@@ -168,6 +173,14 @@ public class Term implements Parcelable{
                         this.termName + "', '" +
                         this.termStart + "', '" +
                         this.termEnd + "')"
+        );
+    }
+    public void insertIntoDB(Course course){
+        appDatabase.execSQL(
+                "INSERT INTO termCourse(termId, courseId) " +
+                        "VALUES(" +
+                        this.termId + ", " +
+                        course.getCourseId() + ")"
         );
     }
     public void updateDB(){
@@ -181,8 +194,12 @@ public class Term implements Parcelable{
                         "WHERE termId = " + this.termId
         );
     }
+    public void clearTermCourseDB(){
+        appDatabase.execSQL("DELETE FROM termCourse WHERE termId = " + this.getTermId());
+    }
     public void deleteFromDB(){
         appDatabase.execSQL("DELETE from term WHERE termId = " + this.termId);
+        appDatabase.execSQL("DELETE from termCourse WHERE termId = " + this.termId);
     }
     public static void createFromDB() {
 

@@ -18,7 +18,7 @@ public class NoteListActivity extends AppCompatActivity {
 
     private final int REQUEST_CODE = 20; //used to determine result type
     private Note selectedNote;
-    private Course selectedCourse;
+    private static Course selectedCourse;
 
 
     @Override
@@ -27,8 +27,11 @@ public class NoteListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_note_list);
 
         //retrieves Course object from calling activity
-        selectedCourse = getIntent().getParcelableExtra("courseObject");
-        selectedCourse = Course.getAllCourseArray().get(selectedCourse.getCourseId());
+
+            selectedCourse = getIntent().getParcelableExtra("courseObject");
+            selectedCourse = Course.allCourseMap.get(selectedCourse.getCourseId());
+
+
 
           /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -48,7 +51,6 @@ public class NoteListActivity extends AppCompatActivity {
 
     public void populateNoteList(){
 
-
         final ListView noteList = findViewById(R.id.list_notes);
 
         ArrayAdapter<Note> arrayAdapter = new ArrayAdapter<Note>(this, android.R.layout.simple_list_item_1, selectedCourse.getCourseNoteArray());
@@ -64,6 +66,7 @@ public class NoteListActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(NoteListActivity.this, NoteDetailActivity.class);
                 intent.putExtra("noteObject", selectedNote);
+                intent.putExtra("CourseObject",selectedCourse);
                 intent.putExtra("mode", 2); // pass arbitrary data to launched activity
                 startActivity(intent);
             }
@@ -101,6 +104,8 @@ public class NoteListActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            selectedCourse = getIntent().getParcelableExtra("courseObject");
+            selectedCourse = Course.allCourseMap.get(selectedCourse.getCourseId());
             populateNoteList();
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         }

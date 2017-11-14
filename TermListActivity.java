@@ -96,7 +96,6 @@ public class TermListActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             populateTermList();
-            Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         }
     }
 }

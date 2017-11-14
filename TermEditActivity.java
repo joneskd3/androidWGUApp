@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class TermEditActivity extends AppCompatActivity {
 
@@ -34,7 +35,7 @@ public class TermEditActivity extends AppCompatActivity {
         populateFieldVariables();
 
         if (newTerm){
-            populateNewTermCourses();
+            populateTermCourses();
         } else {
             selectedTerm = getIntent().getParcelableExtra("termObject");
             selectedTerm = Term.allTermMap.get(selectedTerm.getTermId());
@@ -46,8 +47,6 @@ public class TermEditActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setDisplayHomeAsUpEnabled(true);
-
-
     }
     public void updateTerm(){
 
@@ -80,47 +79,37 @@ public class TermEditActivity extends AppCompatActivity {
         populateTermCourses();
     }
     public void populateTermCourses(){
-        for(Course course : Course.getAllCourseArray()){
-
+        for(Course course : Course.getAllCourseArray())
+        {
             CheckBox courseCheckboxField = new CheckBox(this);
-
             courseCheckboxField.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
             ));
             courseCheckboxField.setText(course.toString());
+            termCourseListField.addView(courseCheckboxField);
 
-            for(Course termCourse : selectedTerm.getTermCourseArray()){
-                if (course.getCourseId() == termCourse.getCourseId()){
-                    courseCheckboxField.setChecked(true);
+            if(!newTerm)
+            {
+                for (Course termCourse : selectedTerm.getTermCourseArray())
+                {
+                    if (course.getCourseId() == termCourse.getCourseId())
+                    {
+                        courseCheckboxField.setChecked(true);
+                    }
                 }
             }
-
-            termCourseListField.addView(courseCheckboxField);
-        }
-    }
-    public void populateNewTermCourses(){
-        for(Course course : Course.getAllCourseArray()){
-
-            CheckBox courseCheckboxField = new CheckBox(this);
-
-            courseCheckboxField.setLayoutParams(new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-            ));
-            courseCheckboxField.setText(course.toString());
-
-            termCourseListField.addView(courseCheckboxField);
         }
     }
     public void updateTermCourse(){
-        selectedTerm.getTermCourseArray().clear(); //
+
+        selectedTerm.clearTermCourseDB();
 
         for(int i = 0; i < termCourseListField.getChildCount(); i++){
             CheckBox courseChecked = (CheckBox) termCourseListField.getChildAt(i);
 
             if (courseChecked.isChecked()){
-                selectedTerm.addToTermCourseArray(Course.getAllCourseArray().get(i));
+                selectedTerm.insertIntoDB(Course.getAllCourseArray().get(i));
             }
         }
     }
@@ -144,21 +133,28 @@ public class TermEditActivity extends AppCompatActivity {
                 Intent data = new Intent();
                 data.putExtra("termObject", selectedTerm);
                 setResult(RESULT_OK, data); // set result code and bundle data for response
+
+                Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
                 finish(); // closes the activity, pass data to parent
 
                 return true;
 
             case R.id.button_delete:
 
-                selectedTerm.deleteFromDB();
+                if (!validationTermHasCourses()){
+                    selectedTerm.deleteFromDB();
 
-                Intent deleteData = new Intent(this, TermListActivity.class);
-                //data.putExtra("termObject", selectedTerm);
-                //setResult(RESULT_OK, data); // set result code and bundle data for response
-                startActivity(deleteData);
-                //finish(); // closes the activity, pass data to parent
+                    Intent deleteData = new Intent(this, TermListActivity.class);
 
-                return true;
+                    Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
+
+                    startActivity(deleteData);
+
+                    return true;
+                }
+
+                return false;
+
 
             case android.R.id.home: //handles back button
                 NavUtils.navigateUpFromSameTask(this);
@@ -170,5 +166,14 @@ public class TermEditActivity extends AppCompatActivity {
 
         }
     }
-
+    public Boolean validationTermHasCourses(){
+        for(int i = 0; i < termCourseListField.getChildCount(); i++){
+            CheckBox courseChecked = (CheckBox) termCourseListField.getChildAt(i);
+            if (courseChecked.isChecked()){
+                Toast.makeText(this, "Cannot delete term with courses", Toast.LENGTH_LONG).show();
+                return true;
+            }
+        }
+        return false;
+    }
 }

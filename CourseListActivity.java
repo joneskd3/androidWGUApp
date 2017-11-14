@@ -20,12 +20,15 @@ public class CourseListActivity extends AppCompatActivity {
 
     private final int REQUEST_CODE = 20; //used to determine result type
 
+    private Course selectedCourse;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_course_list);
 
-                  /* Set up interface */
+
+      /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
@@ -81,9 +84,8 @@ public class CourseListActivity extends AppCompatActivity {
             case R.id.toolbar_add_button:
                 Intent intent = new Intent(this, CourseEditActivity.class);
 
-                Course newCourse = new Course();
-
-                intent.putExtra("courseObject", newCourse);
+                //Course newCourse = new Course();
+                intent.putExtra("new", true);
                 intent.putExtra("mode", 2); // pass arbitrary data to launched activity
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;

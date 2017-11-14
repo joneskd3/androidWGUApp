@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 public class AssessmentEditActivity extends AppCompatActivity {
 
@@ -37,7 +38,7 @@ public class AssessmentEditActivity extends AppCompatActivity {
             populateTypeField();
         } else {
             selectedAssessment = getIntent().getParcelableExtra("assessmentObject");
-            selectedAssessment = Assessment.getAllAssessmentArray().get(selectedAssessment.getAssessmentId());
+            selectedAssessment = Assessment.allAssessmentMap.get(selectedAssessment.getAssessmentId());
             populateFields();
         }
 
@@ -123,6 +124,16 @@ public class AssessmentEditActivity extends AppCompatActivity {
                 data.putExtra("assessmentObject", selectedAssessment);
                 setResult(RESULT_OK, data); // set result code and bundle data for response
                 finish(); // closes the activity, pass data to parent
+
+                return true;
+
+            case R.id.button_delete:
+
+                selectedAssessment.deleteFromDB();
+
+                Intent deleteIntent = new Intent(this, AssessmentListActivity.class);
+                startActivity(deleteIntent);
+                Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
 
                 return true;
 

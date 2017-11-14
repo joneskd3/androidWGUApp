@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 public class CourseEditActivity extends AppCompatActivity {
 
+    private Boolean newCourse = false;
+
     private Course selectedCourse;
 
     private TextView courseTitleField;
@@ -38,10 +40,13 @@ public class CourseEditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_course_edit); //sets layout
 
         //retrieves Course object from calling activity
-        selectedCourse = getIntent().getParcelableExtra("courseObject");
-        selectedCourse = Course.allCourseMap.get(selectedCourse.getCourseId());
+        newCourse = getIntent().getBooleanExtra("new",false);
 
-
+        if(!newCourse) {
+            selectedCourse = getIntent().getParcelableExtra("courseObject");
+            selectedCourse = Course.allCourseMap.get(selectedCourse.getCourseId());
+        }
+        populateFields(selectedCourse);
 
 
         /* Set up interface */
@@ -50,7 +55,6 @@ public class CourseEditActivity extends AppCompatActivity {
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
-        populateFields(selectedCourse);
     }
 
     public void populateFieldVariables(){
@@ -67,11 +71,14 @@ public class CourseEditActivity extends AppCompatActivity {
 
         populateFieldVariables();
 
-        courseTitleField.setText(testCourse.getCourseName());
-        courseStartDateField.setText(testCourse.getCourseStartDate());
-        courseEndDateField.setText(testCourse.getCourseEndDate());
-        courseStartReminderField.setChecked(testCourse.isCourseStartAlert());
-        courseEndReminderField.setChecked(testCourse.isCourseEndAlert());
+        if(!newCourse) {
+
+            courseTitleField.setText(testCourse.getCourseName());
+            courseStartDateField.setText(testCourse.getCourseStartDate());
+            courseEndDateField.setText(testCourse.getCourseEndDate());
+            courseStartReminderField.setChecked(testCourse.isCourseStartAlert());
+            courseEndReminderField.setChecked(testCourse.isCourseEndAlert());
+        }
 
         populateStatusFields();
         populateMentorFields();
@@ -89,12 +96,14 @@ public class CourseEditActivity extends AppCompatActivity {
             ));
             mentorCheckboxField.setText(mentor.getMentorName());
 
-            for(Mentor courseMentor : selectedCourse.getCourseMentorArray()){
-                if (mentor.getMentorId() == courseMentor.getMentorId()){
-                    mentorCheckboxField.setChecked(true);
+            if(!newCourse)
+            {
+                for (Mentor courseMentor : selectedCourse.getCourseMentorArray()) {
+                    if (mentor.getMentorId() == courseMentor.getMentorId()) {
+                        mentorCheckboxField.setChecked(true);
+                    }
                 }
             }
-
             mentorListField.addView(mentorCheckboxField);
         }
     }
@@ -112,12 +121,13 @@ public class CourseEditActivity extends AppCompatActivity {
 
             assessmentCheckboxField.setText(assessment.getAssessmentTitle());
 
-            for(Assessment courseAssessment : selectedCourse.getCourseAssessmentArray()){
-                if (assessment.getAssessmentId() == courseAssessment.getAssessmentId()){
-                    assessmentCheckboxField.setChecked(true);
+            if(!newCourse) {
+                for (Assessment courseAssessment : selectedCourse.getCourseAssessmentArray()) {
+                    if (assessment.getAssessmentId() == courseAssessment.getAssessmentId()) {
+                        assessmentCheckboxField.setChecked(true);
+                    }
                 }
             }
-
             assessmentListField.addView(assessmentCheckboxField);
         }
     }
@@ -130,22 +140,24 @@ public class CourseEditActivity extends AppCompatActivity {
         // Apply the adapter to the spinner
         courseStatusField.setAdapter(adapter);
 
-        int selectedStatus = 0;
-        switch (selectedCourse.getCourseStatus()){
-            case "In Progress":
-                selectedStatus = 0;
-                break;
-            case "Dropped":
-                selectedStatus = 1;
-                break;
-            case "Completed":
-                selectedStatus = 2;
-                break;
-            case "Plan To Take":
-                selectedStatus = 3;
-                break;
+        if(!newCourse) {
+            int selectedStatus = 0;
+            switch (selectedCourse.getCourseStatus()) {
+                case "In Progress":
+                    selectedStatus = 0;
+                    break;
+                case "Dropped":
+                    selectedStatus = 1;
+                    break;
+                case "Completed":
+                    selectedStatus = 2;
+                    break;
+                case "Plan To Take":
+                    selectedStatus = 3;
+                    break;
+            }
+            courseStatusField.setSelection(selectedStatus);
         }
-        courseStatusField.setSelection(selectedStatus);
     }
 
     public void updateCourse(){
@@ -174,18 +186,18 @@ public class CourseEditActivity extends AppCompatActivity {
             CheckBox mentorChecked = (CheckBox) mentorListField.getChildAt(i);
 
             if (mentorChecked.isChecked()){
-                selectedCourse.insertIntoDB(Mentor.allMentorMap.get(i));
+                selectedCourse.insertIntoDB(Mentor.getAllMentorArray().get(i));
             }
         }
     }
     public void updateCourseAssessment(){
-        selectedCourse.getCourseAssessmentArray().clear();
 
+        selectedCourse.clearCourseAssessmentDB();
         for(int i = 0; i < assessmentListField.getChildCount(); i++){
             CheckBox assessmentChecked = (CheckBox) assessmentListField.getChildAt(i);
 
             if (assessmentChecked.isChecked()){
-                selectedCourse.insertIntoDB(Assessment.allAssessmentMap.get(i));
+                selectedCourse.insertIntoDB(Assessment.getAllAssessmentArray().get(i));
             }
         }
     }
@@ -201,6 +213,9 @@ public class CourseEditActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.button_save:
 
+                if(newCourse){
+                    selectedCourse = new Course();
+                }
                 updateCourse();//updates course info
 
                 Intent data = new Intent();
@@ -211,7 +226,7 @@ public class CourseEditActivity extends AppCompatActivity {
                 return true;
             case R.id.button_delete:
 
-                //selectedCourse.deleteFromAllCourseArray(selectedCourse.getCourseId());
+                selectedCourse.deleteFromDB();
 
                 Intent deleteIntent = new Intent(this, CourseListActivity.class);
                 startActivity(deleteIntent);

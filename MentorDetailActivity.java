@@ -27,7 +27,7 @@ public class MentorDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_mentor_detail);
 
         selectedMentor = getIntent().getParcelableExtra("mentorObject");
-        selectedMentor = Mentor.getAllMentorArray().get(selectedMentor.getMentorId());
+        selectedMentor = Mentor.allMentorMap.get(selectedMentor.getMentorId());
 
         /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -57,7 +57,6 @@ public class MentorDetailActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             selectedMentor = data.getParcelableExtra("mentorObject");
             populateFields();
-            Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         }
     }
     @Override

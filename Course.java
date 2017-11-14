@@ -211,13 +211,13 @@ public class Course implements Parcelable {
     /*Database Methods - add insert to constructor + add update into setters*/
     public void getHighestCourseId(){
 
-        String query = "SELECT COUNT(*) AS count FROM course";
+        String query = "SELECT MAX(courseId) AS max FROM course";
 
         Cursor cursor = appDatabase.rawQuery(query,null);
 
         cursor.moveToFirst();
 
-        highestCourseId = cursor.getInt(0);
+        highestCourseId = cursor.getInt(0) + 1;
     }
     public void insertIntoDB(){
         appDatabase.execSQL(
@@ -252,6 +252,9 @@ public class Course implements Parcelable {
     public void clearCourseMentorDB(){
         appDatabase.execSQL("DELETE FROM courseMentor WHERE courseId =" + this.getCourseId());
     }
+    public void clearCourseAssessmentDB(){
+        appDatabase.execSQL("DELETE FROM courseAssessment WHERE courseId =" + this.getCourseId());
+    }
     public void updateDB(){
         appDatabase.execSQL(
                 "UPDATE course " +
@@ -274,6 +277,13 @@ public class Course implements Parcelable {
                     "mentorId = " + mentor.getMentorId() + " " +
                 "WHERE courseID = " + this.getCourseId()
         );
+    }
+    public void deleteFromDB(){
+        appDatabase.execSQL("DELETE from course WHERE courseId = " + this.courseId);
+        appDatabase.execSQL("DELETE from courseMentor WHERE courseId = " + this.courseId);
+        appDatabase.execSQL("DELETE from courseAssessment WHERE courseId = " + this.courseId);
+        appDatabase.execSQL("DELETE from termCourse WHERE courseId = " + this.courseId);
+        appDatabase.execSQL("DELETE from note WHERE courseId = " + this.courseId);
     }
     public static void createCourseFromDB() {
 
