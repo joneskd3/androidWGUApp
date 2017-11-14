@@ -1,12 +1,15 @@
 package com.example.hello.kjschedule;
 
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -19,8 +22,17 @@ public class CourseDetailActivity extends AppCompatActivity {
 
     public Course selectedCourse; //currently displayed Course object
 
-
     private final int REQUEST_CODE = 20; //used to determine result type
+
+    private TextView courseTitleField;
+    private TextView courseStartDateField;
+    private TextView courseEndDateField;
+    private ImageView courseStartReminder;
+    private ImageView courseEndReminder;
+    private TextView courseStatus;
+    private ListView mentorList;
+    private ListView assessmentList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +41,7 @@ public class CourseDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_course_detail);
 
         selectedCourse = getIntent().getParcelableExtra("courseObject");
-        selectedCourse = Course.getAllCourseArray().get(selectedCourse.getCourseId());
+        selectedCourse = Course.allCourseMap.get(selectedCourse.getCourseId());
 
         /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -42,47 +54,73 @@ public class CourseDetailActivity extends AppCompatActivity {
     /*Updates list of mentors */
     public void populateMentor(){
 
-        ArrayList<String> formattedMentorArray = new ArrayList<>(); //formats mentor array list for display
-
         if(selectedCourse.getCourseMentorArray().size() > 0) {
-            for (Mentor mentor : selectedCourse.getCourseMentorArray()) {
-                formattedMentorArray.add(mentor.getMentorName());
-            }
-        } else {
-            formattedMentorArray.add("No Mentor Assigned"); //If no mentors assigned
-        }
+            ArrayAdapter<Mentor> arrayAdapter = new ArrayAdapter<Mentor>(CourseDetailActivity.this,
+                    android.R.layout.simple_list_item_1, selectedCourse.getCourseMentorArray());
 
-        ListView mentorList = findViewById(R.id.list_mentor);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, formattedMentorArray);
-        mentorList.setAdapter(arrayAdapter);
+            mentorList.setAdapter(arrayAdapter);
+
+            mentorList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long row) {
+
+                    Mentor selectedMentor = (Mentor) mentorList.getItemAtPosition(position);
+
+                    Intent intent = new Intent(CourseDetailActivity.this, MentorDetailActivity.class);
+                    intent.putExtra("mentorObject", selectedMentor);
+                    intent.putExtra("mode", 2); // pass arbitrary data to launched activity
+                    startActivity(intent);
+                }
+            });
+
+        } else {
+            ArrayList<String> emptyArray = new ArrayList<>(); //formats mentor array list for display
+            emptyArray.add("No Mentors Assigned"); //If no mentors assigned
+
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(CourseDetailActivity.this,
+                    android.R.layout.simple_list_item_1, emptyArray);
+
+            mentorList.setAdapter(arrayAdapter);
+        }
     }
     /*Updates list of assessments */
-    public void populateAssessment(){
+    public void populateAssessment() {
 
-        ArrayList<String> formattedAssessmentArray = new ArrayList<>();
 
         if (selectedCourse.getCourseAssessmentArray().size() > 0) {
-            for (Assessment assessment : selectedCourse.getCourseAssessmentArray()) {
-                formattedAssessmentArray.add(assessment.getAssessmentTitle());
-            }
-        } else {
-            formattedAssessmentArray.add("No Assessment Assigned");
-        }
+            ArrayAdapter<Assessment> arrayAdapter = new ArrayAdapter<Assessment>(CourseDetailActivity.this,
+                    android.R.layout.simple_list_item_1, selectedCourse.getCourseAssessmentArray());
 
-        ListView assessmentList = findViewById(R.id.list_assessment);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, formattedAssessmentArray);
-        assessmentList.setAdapter(arrayAdapter);
+            assessmentList.setAdapter(arrayAdapter);
+
+            assessmentList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long row) {
+
+                    Assessment selectedAssessment = (Assessment) assessmentList.getItemAtPosition(position);
+
+                    Intent intent = new Intent(CourseDetailActivity.this, AssessmentDetailActivity.class);
+                    intent.putExtra("assessmentObject", selectedAssessment);
+                    intent.putExtra("mode", 2); // pass arbitrary data to launched activity
+                    startActivity(intent);
+                }
+            });
+
+
+        } else {
+            ArrayList<String> emptyArray = new ArrayList<>(); //formats mentor array list for display
+            emptyArray.add("No Assessments Assigned"); //If no mentors assigned
+
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(CourseDetailActivity.this,
+                    android.R.layout.simple_list_item_1, emptyArray);
+
+            assessmentList.setAdapter(arrayAdapter);
+        }
     }
     /*Updates all other fields */
     public void populateFields(Course testCourse) {
 
-        /*Field Variables*/
-        TextView courseTitleField = findViewById(R.id.text_title);
-        TextView courseStartDateField = findViewById(R.id.text_phone);
-        TextView courseEndDateField = findViewById(R.id.text_email);
-        ImageView courseStartReminder = findViewById(R.id.img_start_reminder);
-        ImageView courseEndReminder = findViewById(R.id.img_end_reminder);
-        TextView courseStatus = findViewById(R.id.text_type);
+        populateFieldVariables();
 
         /*Update Fields*/
         courseTitleField.setText(testCourse.getCourseName());
@@ -107,6 +145,20 @@ public class CourseDetailActivity extends AppCompatActivity {
         populateAssessment();
     }
 
+    public void populateFieldVariables(){
+            /*Field Variables*/
+        courseTitleField = findViewById(R.id.text_title);
+        courseStartDateField = findViewById(R.id.text_phone);
+        courseEndDateField = findViewById(R.id.text_email);
+        courseStartReminder = findViewById(R.id.img_start_reminder);
+        courseEndReminder = findViewById(R.id.img_end_reminder);
+        courseStatus = findViewById(R.id.text_type);
+        mentorList = findViewById(R.id.list_mentor);
+        assessmentList = findViewById(R.id.list_assessment);
+
+
+    }
+
 
 
     /*Returns result after launching edit activity */
@@ -121,7 +173,7 @@ public class CourseDetailActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.edit, menu);
+        getMenuInflater().inflate(R.menu.course, menu);
         return true;
     }
     @Override
@@ -136,8 +188,16 @@ public class CourseDetailActivity extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;
 
+            case R.id.note_button:
+                Intent noteIntent = new Intent(this, NoteListActivity.class);
+                noteIntent.putExtra("courseObject", selectedCourse);
+                noteIntent.putExtra("mode", 2); // pass arbitrary data to launched activity
+                noteIntent.putExtra("newNote",true);
+                startActivityForResult(noteIntent, REQUEST_CODE);
+                return true;
+
             case android.R.id.home: //handles back button
-                onBackPressed();
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
 
             default:

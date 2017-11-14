@@ -1,6 +1,7 @@
 package com.example.hello.kjschedule;
 
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -43,26 +44,25 @@ public class AssessmentListActivity extends AppCompatActivity {
 
     public void populateAssessmentList(){
 
-
         final ListView assessmentList = findViewById(R.id.list_assessments);
 
-        ArrayAdapter<Assessment> arrayAdapter = new ArrayAdapter<Assessment>(this, android.R.layout.simple_list_item_1, Assessment.getAllAssessmentArray());
-        arrayAdapter.notifyDataSetChanged();
-        assessmentList.setAdapter(arrayAdapter);
+        if (Assessment.getAllAssessmentArray().size() > 0) {
+            ArrayAdapter<Assessment> arrayAdapter = new ArrayAdapter<Assessment>(this, android.R.layout.simple_list_item_1, Assessment.getAllAssessmentArray());
+            assessmentList.setAdapter(arrayAdapter);
 
+            assessmentList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long row) {
 
-        assessmentList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long row) {
+                    Assessment selectedAssessment = (Assessment) assessmentList.getItemAtPosition(position);
 
-                Assessment selectedAssessment = (Assessment) assessmentList.getItemAtPosition(position);
-
-                Intent intent = new Intent(AssessmentListActivity.this, AssessmentDetailActivity.class);
-                intent.putExtra("assessmentObject", selectedAssessment);
-                intent.putExtra("mode", 2); // pass arbitrary data to launched activity
-                startActivity(intent);
-            }
-        });
+                    Intent intent = new Intent(AssessmentListActivity.this, AssessmentDetailActivity.class);
+                    intent.putExtra("assessmentObject", selectedAssessment);
+                    intent.putExtra("mode", 2); // pass arbitrary data to launched activity
+                    startActivity(intent);
+                }
+            });
+        }
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -85,7 +85,7 @@ public class AssessmentListActivity extends AppCompatActivity {
                 return true;
 
             case android.R.id.home: //handles back button
-                onBackPressed();
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
 
             default:

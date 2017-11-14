@@ -1,9 +1,13 @@
 package com.example.hello.kjschedule;
 
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import static com.example.hello.kjschedule.MainActivity.appDatabase;
 
 /**
  * Created by owner on 11/9/2017.
@@ -11,26 +15,42 @@ import java.util.ArrayList;
 
 
 public class Note implements Parcelable{
+
+    public static HashMap<Integer, Note> allNoteMap = new HashMap<>();
+
     private int noteId;
     private String noteTitle;
     private String noteText;
+    private int courseId;
 
     private static int highestNoteId = 0;
 
-    private static ArrayList<Note> allNoteArray = new ArrayList<>();
 
     public Note (){
-        this("","");
+        this("","",0);
     }
 
-    public Note (String noteTitle, String noteText){
+
+    public Note (String noteTitle, String noteText, int courseId){
+        this.getHighestId();
         this.noteId = highestNoteId;
-        highestNoteId++;
 
         this.noteTitle = noteTitle;
         this.noteText = noteText;
+        this.courseId = courseId;
 
-        addToNoteArrayList(this);
+        allNoteMap.put(this.noteId,this);
+        this.insertIntoDB();
+    }
+
+    public Note (int noteId, String noteTitle, String noteText, int courseId){
+        this.noteId = noteId;
+
+        this.noteTitle = noteTitle;
+        this.noteText = noteText;
+        this.courseId = courseId;
+
+        allNoteMap.put(this.noteId,this);
     }
 
     public String getNoteTitle() {
@@ -39,6 +59,7 @@ public class Note implements Parcelable{
 
     public void setNoteTitle(String noteTitle) {
         this.noteTitle = noteTitle;
+        this.updateDB();
     }
 
     public int getNoteId() {
@@ -55,16 +76,16 @@ public class Note implements Parcelable{
 
     public void setNoteText(String noteText) {
         this.noteText = noteText;
+        this.updateDB();
     }
 
-    public static ArrayList<Note> getAllNoteArray() {
-        return allNoteArray;
+    public int getCourseId() {
+        return courseId;
     }
 
-    public void addToNoteArrayList(Note note) {
-        allNoteArray.add(note);
+    public void setCourseId(int courseId) {
+        this.courseId = courseId;
     }
-
     @Override
     public int describeContents() {
         return 0;
@@ -99,5 +120,62 @@ public class Note implements Parcelable{
     @Override
     public String toString() {
         return this.getNoteTitle();
+    }
+
+    public void getHighestId(){
+
+        String query = "SELECT COUNT(*) AS count FROM note";
+
+        Cursor cursor = appDatabase.rawQuery(query,null);
+
+        cursor.moveToFirst();
+
+        highestNoteId = cursor.getInt(0);
+    }
+    //add to constructor
+    public void insertIntoDB(){
+        appDatabase.execSQL(
+                "INSERT INTO note(noteId, noteTitle, noteText, courseId) " +
+                        "VALUES(" +
+                        this.noteId + ", '" +
+                        this.noteTitle + "', '" +
+                        this.noteText + "', " +
+                        this.courseId + ")"
+        );
+    }
+    public void updateDB(){
+        appDatabase.execSQL(
+                "UPDATE note " +
+                        "SET " +
+                        "noteId = " + this.noteId + ", " +
+                        "noteTitle = '" + this.noteTitle + "', " +
+                        "noteText = '" + this.noteText + "', " +
+                        "courseId = " + this.courseId + " " +
+                    "WHERE noteId = " + this.noteId
+        );
+    }
+    public static void createFromDB() {
+
+        Cursor cursor = appDatabase.rawQuery("SELECT * FROM note", null);
+
+        int noteIdField = cursor.getColumnIndex("noteId");
+        int noteTitleField = cursor.getColumnIndex("noteTitle");
+        int noteTextField = cursor.getColumnIndex("noteText");
+        int courseIdField = cursor.getColumnIndex("courseId");
+
+        if (cursor.getCount() > 0) {
+
+            cursor.moveToFirst();
+
+            do {
+                int noteId = cursor.getInt(noteIdField);
+                String noteTitle = cursor.getString(noteTitleField);
+                String noteText = cursor.getString(noteTextField);
+                int courseId = cursor.getInt(courseIdField);
+
+                Note note = new Note(noteId, noteTitle, noteText, courseId);
+
+            } while (cursor.moveToNext());
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.hello.kjschedule;
 
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,7 +37,7 @@ public class TermEditActivity extends AppCompatActivity {
             populateNewTermCourses();
         } else {
             selectedTerm = getIntent().getParcelableExtra("termObject");
-            selectedTerm = Term.getAllTermArray().get(selectedTerm.getTermId());
+            selectedTerm = Term.allTermMap.get(selectedTerm.getTermId());
             populateFields();
         }
 
@@ -54,7 +55,7 @@ public class TermEditActivity extends AppCompatActivity {
         String termStartDate = termStartDateField.getText().toString();
         String termEndDate = termEndDateField.getText().toString();
 
-        selectedTerm.setTermTitle(termTitle);
+        selectedTerm.setTermName(termTitle);
         selectedTerm.setTermStart(termStartDate);
         selectedTerm.setTermEnd(termEndDate);
 
@@ -72,7 +73,7 @@ public class TermEditActivity extends AppCompatActivity {
 
 
         /*Update Fields*/
-        termTitleField.setText(selectedTerm.getTermTitle());
+        termTitleField.setText(selectedTerm.getTermName());
         termStartDateField.setText(selectedTerm.getTermStart());
         termEndDateField.setText(selectedTerm.getTermEnd());
 
@@ -147,8 +148,21 @@ public class TermEditActivity extends AppCompatActivity {
 
                 return true;
 
+            case R.id.button_delete:
+
+                selectedTerm.deleteFromDB();
+
+                Intent deleteData = new Intent(this, TermListActivity.class);
+                //data.putExtra("termObject", selectedTerm);
+                //setResult(RESULT_OK, data); // set result code and bundle data for response
+                startActivity(deleteData);
+                //finish(); // closes the activity, pass data to parent
+
+                return true;
+
             case android.R.id.home: //handles back button
-                onBackPressed();
+                NavUtils.navigateUpFromSameTask(this);
+
                 return true;
 
             default:
@@ -156,4 +170,5 @@ public class TermEditActivity extends AppCompatActivity {
 
         }
     }
+
 }

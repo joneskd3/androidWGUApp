@@ -1,6 +1,7 @@
 package com.example.hello.kjschedule;
 
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class CourseEditActivity extends AppCompatActivity {
@@ -37,7 +39,7 @@ public class CourseEditActivity extends AppCompatActivity {
 
         //retrieves Course object from calling activity
         selectedCourse = getIntent().getParcelableExtra("courseObject");
-        selectedCourse = Course.getAllCourseArray().get(selectedCourse.getCourseId());
+        selectedCourse = Course.allCourseMap.get(selectedCourse.getCourseId());
 
 
 
@@ -136,6 +138,12 @@ public class CourseEditActivity extends AppCompatActivity {
             case "Dropped":
                 selectedStatus = 1;
                 break;
+            case "Completed":
+                selectedStatus = 2;
+                break;
+            case "Plan To Take":
+                selectedStatus = 3;
+                break;
         }
         courseStatusField.setSelection(selectedStatus);
     }
@@ -160,13 +168,13 @@ public class CourseEditActivity extends AppCompatActivity {
         updateCourseAssessment();
     }
     public void updateCourseMentor(){
-        selectedCourse.getCourseMentorArray().clear(); //
+        selectedCourse.clearCourseMentorDB();
 
         for(int i = 0; i < mentorListField.getChildCount(); i++){
             CheckBox mentorChecked = (CheckBox) mentorListField.getChildAt(i);
 
             if (mentorChecked.isChecked()){
-                selectedCourse.addToCourseMentor(Mentor.getAllMentorArray().get(i));
+                selectedCourse.insertIntoDB(Mentor.allMentorMap.get(i));
             }
         }
     }
@@ -177,7 +185,7 @@ public class CourseEditActivity extends AppCompatActivity {
             CheckBox assessmentChecked = (CheckBox) assessmentListField.getChildAt(i);
 
             if (assessmentChecked.isChecked()){
-                selectedCourse.addToCourseAssessment(Assessment.getAllAssessmentArray().get(i));
+                selectedCourse.insertIntoDB(Assessment.allAssessmentMap.get(i));
             }
         }
     }
@@ -201,9 +209,18 @@ public class CourseEditActivity extends AppCompatActivity {
                 finish(); // closes the activity, pass data to parent
 
                 return true;
+            case R.id.button_delete:
+
+                //selectedCourse.deleteFromAllCourseArray(selectedCourse.getCourseId());
+
+                Intent deleteIntent = new Intent(this, CourseListActivity.class);
+                startActivity(deleteIntent);
+                Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
+
+                return true;
 
             case android.R.id.home: //handles back button
-                onBackPressed();
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
 
             default:

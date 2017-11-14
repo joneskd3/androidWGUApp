@@ -1,16 +1,21 @@
 package com.example.hello.kjschedule;
 
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class TermDetailActivity extends AppCompatActivity {
 
@@ -32,7 +37,7 @@ public class TermDetailActivity extends AppCompatActivity {
 
         //retrieves Course object from calling activity
         selectedTerm = getIntent().getParcelableExtra("termObject");
-        selectedTerm = Term.getAllTermArray().get(selectedTerm.getTermId());
+        selectedTerm = Term.allTermMap.get(selectedTerm.getTermId());
         //editTerm = getIntent().getBooleanExtra("editCourse",false);
 
 
@@ -56,7 +61,7 @@ public class TermDetailActivity extends AppCompatActivity {
         populateFieldVariables();
 
         /*Update Fields*/
-        termTitleField.setText(selectedTerm.getTermTitle());
+        termTitleField.setText(selectedTerm.getTermName());
         termStartDateField.setText(selectedTerm.getTermStart());
         termEndDateField.setText(selectedTerm.getTermEnd());
 
@@ -64,8 +69,35 @@ public class TermDetailActivity extends AppCompatActivity {
     }
     public void populateTermCourseFields(){
 
-        ArrayAdapter<Course> arrayAdapter = new ArrayAdapter<Course>(TermDetailActivity.this, android.R.layout.simple_list_item_1, selectedTerm.getTermCourseArray());
-        termCourseListField.setAdapter(arrayAdapter);
+
+        if(selectedTerm.getTermCourseArray().size() > 0) {
+            ArrayAdapter<Course> arrayAdapter = new ArrayAdapter<Course>(TermDetailActivity.this,
+                    android.R.layout.simple_list_item_1, selectedTerm.getTermCourseArray());
+
+            termCourseListField.setAdapter(arrayAdapter);
+
+            termCourseListField.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long row) {
+
+                    Course selectedCourse = (Course) termCourseListField.getItemAtPosition(position);
+
+                    Intent intent = new Intent(TermDetailActivity.this, CourseDetailActivity.class);
+                    intent.putExtra("courseObject", selectedCourse);
+                    intent.putExtra("mode", 2); // pass arbitrary data to launched activity
+                    startActivity(intent);
+                }
+            });
+
+        } else {
+            ArrayList<String> emptyArray = new ArrayList<>(); //formats mentor array list for display
+            emptyArray.add("No Courses Assigned"); //If no mentors assigned
+
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(TermDetailActivity.this,
+                    android.R.layout.simple_list_item_1, emptyArray);
+
+            termCourseListField.setAdapter(arrayAdapter);
+        }
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -74,6 +106,12 @@ public class TermDetailActivity extends AppCompatActivity {
             populateFields();
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         }
+    }
+    @Override
+    public void onResume() {
+        super.onResume(); // Always call the superclass method first
+
+        populateFields();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -94,7 +132,8 @@ public class TermDetailActivity extends AppCompatActivity {
                 return true;
 
             case android.R.id.home: //handles back button
-                onBackPressed();
+                NavUtils.navigateUpFromSameTask(this);
+
                 return true;
 
             default:

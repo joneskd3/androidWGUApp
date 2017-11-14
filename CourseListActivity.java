@@ -1,6 +1,7 @@
 package com.example.hello.kjschedule;
 
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class CourseListActivity extends AppCompatActivity {
 
@@ -43,6 +46,7 @@ public class CourseListActivity extends AppCompatActivity {
 
 
         final ListView courseList = findViewById(R.id.list_courses);
+
 
         ArrayAdapter<Course> arrayAdapter = new ArrayAdapter<Course>(this, android.R.layout.simple_list_item_1, Course.getAllCourseArray());
         arrayAdapter.notifyDataSetChanged();
@@ -85,7 +89,7 @@ public class CourseListActivity extends AppCompatActivity {
                 return true;
 
             case android.R.id.home: //handles back button
-                onBackPressed();
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
 
             default:

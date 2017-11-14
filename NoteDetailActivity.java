@@ -1,6 +1,7 @@
 package com.example.hello.kjschedule;
 
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,7 +26,7 @@ public class NoteDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_note_detail);
 
         selectedNote = getIntent().getParcelableExtra("noteObject");
-        selectedNote = Note.getAllNoteArray().get(selectedNote.getNoteId());
+        selectedNote = Note.allNoteMap.get(selectedNote.getNoteId());
 
         /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -73,7 +74,7 @@ public class NoteDetailActivity extends AppCompatActivity {
                 return true;
 
             case android.R.id.home: //handles back button
-                onBackPressed();
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
 
             default:

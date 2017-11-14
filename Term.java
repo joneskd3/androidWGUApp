@@ -1,9 +1,13 @@
 package com.example.hello.kjschedule;
 
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import static com.example.hello.kjschedule.MainActivity.appDatabase;
 
 /**
  * Created by owner on 11/9/2017.
@@ -11,8 +15,10 @@ import java.util.ArrayList;
 
 public class Term implements Parcelable{
 
+    public static HashMap<Integer,Term> allTermMap = new HashMap<>();
+
     private int termId;
-    private String termTitle;
+    private String termName;
     private String termStart;
     private String termEnd;
     private ArrayList<Course> termCourseArray = new ArrayList<>();
@@ -22,20 +28,31 @@ public class Term implements Parcelable{
     private static int highestTermId = 0;
 
     public Term(){
-        this("","","",null);
+        this("","","");
     }
 
-    public Term(String termTitle, String termStart, String termEnd, ArrayList<Course> termCourseArray) {
+    public Term(String termName, String termStart, String termEnd) {
+        this.getHighestId();
         this.termId = highestTermId;
-        highestTermId++;
 
-        this.termTitle = termTitle;
+        this.termName = termName;
         this.termStart = termStart;
         this.termEnd = termEnd;
         //this.termCourseArray = new ArrayList<>();
 
-        addToAllTermArray(this);
+        allTermMap.put(this.termId,this);
+        insertIntoDB();
     }
+    public Term(int termId, String termName, String termStart, String termEnd) {
+        this.termId = termId;
+
+        this.termName = termName;
+        this.termStart = termStart;
+        this.termEnd = termEnd;
+
+        allTermMap.put(this.termId,this);
+    }
+
 
     public int getTermId() {
         return termId;
@@ -45,12 +62,13 @@ public class Term implements Parcelable{
         this.termId = termId;
     }
 
-    public String getTermTitle() {
-        return termTitle;
+    public String getTermName() {
+        return termName;
     }
 
-    public void setTermTitle(String termTitle) {
-        this.termTitle = termTitle;
+    public void setTermName(String termName) {
+        this.termName = termName;
+        this.updateDB();
     }
 
     public String getTermStart() {
@@ -59,6 +77,7 @@ public class Term implements Parcelable{
 
     public void setTermStart(String termStart) {
         this.termStart = termStart;
+        this.updateDB();
     }
 
     public String getTermEnd() {
@@ -67,9 +86,11 @@ public class Term implements Parcelable{
 
     public void setTermEnd(String termEnd) {
         this.termEnd = termEnd;
+        this.updateDB();
     }
 
     public ArrayList<Course> getTermCourseArray() {
+
         return termCourseArray;
     }
 
@@ -78,6 +99,21 @@ public class Term implements Parcelable{
     }
 
     public static ArrayList<Term> getAllTermArray() {
+        ArrayList<Term> allTermArray = new ArrayList<>();
+
+        Cursor cursor = appDatabase.rawQuery("SELECT * FROM term", null);
+
+        int termIdField = cursor.getColumnIndex("termId");
+
+        if (cursor.getCount() > 0)
+        {
+            cursor.moveToFirst();
+            do {
+                int termId = cursor.getInt(termIdField);
+                allTermArray.add( Term.allTermMap.get(termId));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
         return allTermArray;
     }
 
@@ -87,7 +123,7 @@ public class Term implements Parcelable{
 
     @Override
     public String toString() {
-        return this.getTermTitle() + "\t[" + this.getTermStart() + " - " + this.getTermEnd() + "]";
+        return this.getTermName() + "\t[" + this.getTermStart() + " - " + this.getTermEnd() + "]";
     }
 
     @Override
@@ -98,19 +134,82 @@ public class Term implements Parcelable{
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(termId);
-        parcel.writeString(termTitle);
+        parcel.writeString(termName);
         parcel.writeString(termStart);
         parcel.writeString(termEnd);
         parcel.writeTypedList(termCourseArray);
     }
     private Term(Parcel in) {
         termId = in.readInt();
-        termTitle = in.readString();
+        termName = in.readString();
         termStart = in.readString();
         termEnd = in.readString();
         in.readTypedList(termCourseArray, Course.CREATOR);
 
     }
+
+    /*Database Methods - add insert to constructor + add update into setters*/
+    public void getHighestId(){
+
+        String query = "SELECT COUNT(*) AS count FROM term";
+
+        Cursor cursor = appDatabase.rawQuery(query,null);
+
+        cursor.moveToFirst();
+
+        highestTermId = cursor.getInt(0);
+    }
+    //add to constructor
+    public void insertIntoDB(){
+        appDatabase.execSQL(
+                "INSERT INTO term(termId, termName, termStart, termEnd) " +
+                        "VALUES(" +
+                        this.termId + ", '" +
+                        this.termName + "', '" +
+                        this.termStart + "', '" +
+                        this.termEnd + "')"
+        );
+    }
+    public void updateDB(){
+        appDatabase.execSQL(
+                "UPDATE term " +
+                        "SET " +
+                        "termid = " + this.termId + ", " +
+                        "termname = '" + this.termName + "', " +
+                        "termStart = '" + this.termStart + "', " +
+                        "termEnd = '" + (this.termEnd ) + "' " +
+                        "WHERE termId = " + this.termId
+        );
+    }
+    public void deleteFromDB(){
+        appDatabase.execSQL("DELETE from term WHERE termId = " + this.termId);
+    }
+    public static void createFromDB() {
+
+        Cursor cursor = appDatabase.rawQuery("SELECT * FROM term", null);
+
+        int termIdField = cursor.getColumnIndex("termId");
+        int termNameField = cursor.getColumnIndex("termName");
+        int termStartField = cursor.getColumnIndex("termStart");
+        int termEndField = cursor.getColumnIndex("termEnd");
+
+        if (cursor.getCount() > 0) {
+
+            cursor.moveToFirst();
+
+            do {
+                int termId = cursor.getInt(termIdField);
+                String termName = cursor.getString(termNameField);
+                String termStart = cursor.getString(termStartField);
+                String termEnd = cursor.getString(termEndField);
+
+
+                Term term = new Term(termId, termName, termStart, termEnd);
+
+            } while (cursor.moveToNext());
+        }
+    }
+
     // After implementing the `Parcelable` interface, we need to create the
     // `Parcelable.Creator<MyParcelable> CREATOR` constant for our class;
     // Notice how it has our class specified as its type.
@@ -130,4 +229,7 @@ public class Term implements Parcelable{
             return new Term[size];
         }
     };
+
+
+
 }

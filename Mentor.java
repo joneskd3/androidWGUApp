@@ -1,9 +1,13 @@
 package com.example.hello.kjschedule;
 
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import static com.example.hello.kjschedule.MainActivity.appDatabase;
 
 /**
  * Created by owner on 11/9/2017.
@@ -11,6 +15,8 @@ import java.util.ArrayList;
 
 
 public class Mentor implements Parcelable{
+    public static HashMap<Integer,Mentor> allMentorMap = new HashMap<>();
+
     private int mentorId;
     private String mentorName;
     private String mentorPhone;
@@ -18,63 +24,138 @@ public class Mentor implements Parcelable{
 
     private static int highestMentorId = 0;
 
-    private static ArrayList<Mentor> mentorArrayList = new ArrayList<>();
-
     public Mentor (){
         this("","","");
     }
-
     public Mentor (String mentorName, String mentorPhone, String mentorEmail){
+        this.getHighestId();
         this.mentorId = highestMentorId;
-        highestMentorId++;
 
         this.mentorName = mentorName;
         this.mentorPhone = mentorPhone;
         this.mentorEmail = mentorEmail;
 
-        addToMentorArrayList(this);
+        this.allMentorMap.put(this.mentorId,this);
+        this.insertIntoDB();
+
+    }
+    public Mentor (int mentorId, String mentorName, String mentorPhone, String mentorEmail){
+        this.mentorId = mentorId;
+        this.mentorName = mentorName;
+        this.mentorPhone = mentorPhone;
+        this.mentorEmail = mentorEmail;
+
+        this.allMentorMap.put(this.mentorId,this);
     }
 
     public int getMentorId() {
         return mentorId;
     }
-
-    public void setMentorId(int mentorId) {
-        this.mentorId = mentorId;
-    }
-
     public String getMentorName() {
         return mentorName;
     }
-
     public void setMentorName(String mentorName) {
         this.mentorName = mentorName;
+        this.updateDB();
     }
-
     public String getMentorPhone() {
         return mentorPhone;
     }
-
     public void setMentorPhone(String mentorPhone) {
         this.mentorPhone = mentorPhone;
-    }
+        this.updateDB();
 
+    }
     public String getMentorEmail() {
         return mentorEmail;
     }
-
     public void setMentorEmail(String mentorEmail) {
         this.mentorEmail = mentorEmail;
+        this.updateDB();
+
     }
+
 
     public static ArrayList<Mentor> getAllMentorArray() {
-        return mentorArrayList;
+        ArrayList<Mentor> allMentorArray = new ArrayList<>();
+
+        String query = "SELECT * FROM mentor";
+        Cursor cursor = appDatabase.rawQuery(query, null);
+
+        int mentorIdField = cursor.getColumnIndex("mentorId");
+
+        if ( cursor.getCount() > 0)
+        {
+            cursor.moveToFirst();
+            do {
+                int mentorId = cursor.getInt(mentorIdField);
+                allMentorArray.add(Mentor.allMentorMap.get(mentorId));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return allMentorArray;
     }
 
-    public void addToMentorArrayList(Mentor mentor) {
-        mentorArrayList.add(mentor);
+    /*Database Methods - add insert to constructor + add update into setters*/
+    public void getHighestId(){
+
+        String query = "SELECT COUNT(*) AS count FROM mentor";
+
+        Cursor cursor = appDatabase.rawQuery(query,null);
+
+        cursor.moveToFirst();
+
+        highestMentorId = cursor.getInt(0);
+    }
+    //add to constructor
+    public void insertIntoDB(){
+        appDatabase.execSQL(
+                "INSERT INTO mentor(mentorId, mentorName, mentorPhone, mentorEmail) " +
+                "VALUES(" +
+                    this.mentorId + ", '" +
+                    this.mentorName + "', '" +
+                    this.mentorPhone + "', '" +
+                    this.mentorEmail + "')"
+        );
+    }
+    public void updateDB(){
+        appDatabase.execSQL(
+                "UPDATE mentor " +
+                "SET " +
+                    "mentorId = " + this.mentorId + ", " +
+                    "mentorName = '" + this.mentorName + "', " +
+                    "mentorPhone = '" + this.mentorPhone + "', " +
+                    "mentorEmail = '" + (this.mentorEmail ) + "' " +
+                "WHERE mentorId = " + this.mentorId
+        );
+    }
+    public static void createFromDB() {
+
+        Cursor cursor = appDatabase.rawQuery("SELECT * FROM mentor", null);
+
+        int mentorIdField = cursor.getColumnIndex("mentorId");
+        int mentorNameField = cursor.getColumnIndex("mentorName");
+        int mentorPhoneField = cursor.getColumnIndex("mentorPhone");
+        int mentorEmailField = cursor.getColumnIndex("mentorEmail");
+
+        if (cursor.getCount() > 0) {
+
+            cursor.moveToFirst();
+
+            do {
+                int mentorId = cursor.getInt(mentorIdField);
+                String mentorName = cursor.getString(mentorNameField);
+                String mentorPhone = cursor.getString(mentorPhoneField);
+                String mentorEmail = cursor.getString(mentorEmailField);
+
+
+                Mentor mentor = new Mentor(mentorId, mentorName, mentorPhone, mentorEmail);
+
+            } while (cursor.moveToNext());
+        }
     }
 
+    /*Parcelable Methods*/
     @Override
     public int describeContents() {
         return 0;
@@ -86,22 +167,16 @@ public class Mentor implements Parcelable{
         parcel.writeString(mentorName);
         parcel.writeString(mentorPhone);
         parcel.writeString(mentorEmail);
-        //parcel.writeTypedList(Mentor.getAllMentorArray());
-        //parcel.writeList(courseAssessment);
-        //parcel.writeValue(courseNotes);
+
     }
     private Mentor(Parcel in) {
         mentorId = in.readInt();
         mentorName = in.readString();
         mentorPhone = in.readString();
         mentorEmail = in.readString();
-        //courseMentor =  in.readList(courseMentor,getClass().getClassLoader());
-        //courseAssessment = in.readList(courseAssessment,getClass().getClassLoader());
-        //courseNotes = in.readParcelable(getClass().getClassLoader());
+
     }
-    // After implementing the `Parcelable` interface, we need to create the
-    // `Parcelable.Creator<MyParcelable> CREATOR` constant for our class;
-    // Notice how it has our class specified as its type.
+
     public static final Parcelable.Creator<Mentor> CREATOR
             = new Parcelable.Creator<Mentor>() {
 
@@ -118,4 +193,9 @@ public class Mentor implements Parcelable{
             return new Mentor[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return this.getMentorName();
+    }
 }

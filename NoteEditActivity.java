@@ -1,6 +1,7 @@
 package com.example.hello.kjschedule;
 
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 public class NoteEditActivity extends AppCompatActivity {
 
     public Note selectedNote; //currently displayed Course object
+    public Course selectedCourse;
     private final int REQUEST_CODE = 20; //used to denoteine result type
     private boolean newNote;
 
@@ -29,9 +31,12 @@ public class NoteEditActivity extends AppCompatActivity {
 
 
 
-        if (!newNote) {
+        if (newNote) {
+            selectedCourse = getIntent().getParcelableExtra("courseObject");
+            selectedCourse = Course.allCourseMap.get(selectedCourse.getCourseId());
+        } else {
             selectedNote = getIntent().getParcelableExtra("noteObject");
-            selectedNote = Note.getAllNoteArray().get(selectedNote.getNoteId());
+            selectedNote = Note.allNoteMap.get(selectedNote.getNoteId());
             populateFields();
         }
 
@@ -52,6 +57,7 @@ public class NoteEditActivity extends AppCompatActivity {
         selectedNote.setNoteTitle(noteTitle);
 
         selectedNote.setNoteText(noteText);
+        selectedNote.setCourseId(selectedCourse.getCourseId());
 
     }
 
@@ -82,6 +88,7 @@ public class NoteEditActivity extends AppCompatActivity {
 
                 if (newNote) {
                     selectedNote = new Note();
+                    //selectedCourse.addToCourseNoteArray(selectedNote);
                 }
                 updateNote();//updates note info
 
@@ -93,7 +100,7 @@ public class NoteEditActivity extends AppCompatActivity {
                 return true;
 
             case android.R.id.home: //handles back button
-                onBackPressed();
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
 
             default:

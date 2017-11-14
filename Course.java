@@ -1,51 +1,47 @@
 package com.example.hello.kjschedule;
 
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.example.hello.kjschedule.Mentor;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
-/**
- * Created by owner on 11/9/2017.
- */
+import static com.example.hello.kjschedule.MainActivity.appDatabase;
+
 
 public class Course implements Parcelable {
+
+    /*All Courses*/
+    public static HashMap<Integer, Course> allCourseMap = new HashMap<Integer, Course>();
+
     private int courseId;
-
-    public int getCourseId() {
-        return courseId;
-    }
-
-    public void setCourseId(int courseId) {
-        this.courseId = courseId;
-    }
-
     private String courseName;
     private String courseStartDate;
     private boolean courseStartAlert;
     private String courseEndDate;
     private boolean courseEndAlert;
     private String courseStatus;
-    private ArrayList<Mentor> courseMentor = new ArrayList<>();
-    private ArrayList<Assessment> courseAssessment = new ArrayList<>();
-    private ArrayList<String> courseNotes;
 
+    /*Arrays*/
+    //private ArrayList<Mentor> courseMentor = new ArrayList<>();
+    //private ArrayList<Assessment> courseAssessmentArray = new ArrayList<>();
+    //private ArrayList<Note> courseNoteArray = new ArrayList<>();
+
+    /*Statics*/
     private static int highestCourseId = 0;
 
-    private static ArrayList<Course> courseArrayList = new ArrayList<>();
-
-    public Course(){
-        this("","",false,"",false,"",null,null,null);
+    /*Constructors*/
+    public Course() {
+        this("", "", false, "",
+                false, "");
     }
 
     public Course(String courseName, String courseStartDate, boolean courseStartAlert,
-                  String courseEndDate, boolean courseEndAlert, String courseStatus,
-                  ArrayList<Mentor> courseMentor, ArrayList<Assessment> courseAssessment,
-                  ArrayList<String> courseNotes) {
+                  String courseEndDate, boolean courseEndAlert, String courseStatus) {
+        getHighestCourseId();
         this.courseId = highestCourseId;
-        highestCourseId++;
 
         this.courseName = courseName;
         this.courseStartDate = courseStartDate;
@@ -53,128 +49,268 @@ public class Course implements Parcelable {
         this.courseEndDate = courseEndDate;
         this.courseEndAlert = courseEndAlert;
         this.courseStatus = courseStatus;
-        //this.courseMentor = new ArrayList<>();
-        //this.courseAssessment = new ArrayList<>();
-        this.courseNotes = courseNotes;
 
-        addToCourseArrayList(this);
+        allCourseMap.put(this.courseId,this);
+        this.insertIntoDB();
     }
 
+    /*Constructor for DB population*/
+    public Course(int courseId, String courseName, String courseStartDate, boolean courseStartAlert,
+                  String courseEndDate, boolean courseEndAlert, String courseStatus) {
+
+        this.courseId = courseId;
+
+        this.courseName = courseName;
+        this.courseStartDate = courseStartDate;
+        this.courseStartAlert = courseStartAlert;
+        this.courseEndDate = courseEndDate;
+        this.courseEndAlert = courseEndAlert;
+        this.courseStatus = courseStatus;
+
+        allCourseMap.put(this.courseId,this);
+    }
+
+    /*Setters and Getters*/
+
+    public int getCourseId() {
+        return courseId;
+    }
     public String getCourseName() {
         return courseName;
     }
-
     public void setCourseName(String courseName) {
         this.courseName = courseName;
+        this.updateDB();
     }
-
     public String getCourseStartDate() {
         return courseStartDate;
     }
-
     public void setCourseStartDate(String courseStartDate) {
         this.courseStartDate = courseStartDate;
+        this.updateDB();
     }
-
     public boolean isCourseStartAlert() {
         return courseStartAlert;
     }
-
     public void setCourseStartAlert(boolean courseStartAlert) {
         this.courseStartAlert = courseStartAlert;
+        this.updateDB();
     }
-
     public String getCourseEndDate() {
         return courseEndDate;
     }
-
     public void setCourseEndDate(String courseEndDate) {
         this.courseEndDate = courseEndDate;
+        this.updateDB();
     }
-
     public boolean isCourseEndAlert() {
         return courseEndAlert;
     }
-
     public void setCourseEndAlert(boolean courseEndAlert) {
         this.courseEndAlert = courseEndAlert;
+        this.updateDB();
     }
-
     public String getCourseStatus() {
         return courseStatus;
     }
-
     public void setCourseStatus(String courseStatus) {
         this.courseStatus = courseStatus;
+        this.updateDB();
     }
 
-    public ArrayList<Mentor> getCourseMentor() {
-        return courseMentor;
-    }
+    /*ArrayList Methods*/
+    public ArrayList<Mentor> getCourseMentorArray() {
 
-    public void setCourseMentor(ArrayList<Mentor> courseMentor) {
-        this.courseMentor = courseMentor;
-    }
+        ArrayList<Mentor> courseMentorArray = new ArrayList<>();
 
-    public ArrayList<Assessment> getCourseAssessment() {
-        return courseAssessment;
-    }
+        String query = "SELECT * FROM courseMentor WHERE courseId = " + this.getCourseId();
+        Cursor cursor = appDatabase.rawQuery(query, null);
 
-    public void setCourseAssessment(ArrayList<Assessment> courseAssessment) {
-        this.courseAssessment = courseAssessment;
-    }
+        int mentorIdField = cursor.getColumnIndex("mentorId");
 
-    public ArrayList<String> getCourseNotes() {
-        return courseNotes;
+        if ( cursor.getCount() > 0)
+        {
+            cursor.moveToFirst();
+            do {
+                int mentorId = cursor.getInt(mentorIdField);
+                courseMentorArray.add(Mentor.allMentorMap.get(mentorId));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return courseMentorArray;
     }
+    public ArrayList<Assessment> getCourseAssessmentArray() {
 
-    public void setCourseNotes(ArrayList<String> courseNotes) {
-        this.courseNotes = courseNotes;
+        ArrayList<Assessment> courseAssessmentArray = new ArrayList<>();
+
+        String query = "SELECT * FROM courseAssessment WHERE courseId = " + this.getCourseId();
+        Cursor cursor = appDatabase.rawQuery(query, null);
+
+        int assessmentIdField = cursor.getColumnIndex("assessmentId");
+
+        if ( cursor.getCount() > 0)
+        {
+            cursor.moveToFirst();
+            do {
+                int assessmentId = cursor.getInt(assessmentIdField);
+                courseAssessmentArray.add(Assessment.allAssessmentMap.get(assessmentId));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return courseAssessmentArray;
     }
+    public ArrayList<Note> getCourseNoteArray() {
 
+        ArrayList<Note> courseNoteArray = new ArrayList<>();
+
+        String query = "SELECT * FROM note WHERE courseId = " + this.getCourseId();
+        Cursor cursor = appDatabase.rawQuery(query, null);
+
+        int noteIdField = cursor.getColumnIndex("noteId");
+
+        if ( cursor.getCount() > 0)
+        {
+            cursor.moveToFirst();
+            do {
+                int noteId = cursor.getInt(noteIdField);
+                courseNoteArray.add(Note.allNoteMap.get(noteId));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return courseNoteArray;
+    }
+    /*
+    public ArrayList<Assessment> getCourseAssessmentArray() {
+        return true;
+    }
+    */
+    /*
+    public ArrayList<Note> getCourseNotesArray() {
+        return courseNoteArray;
+    }
+    */
     public static ArrayList<Course> getAllCourseArray() {
-        return courseArrayList;
+        ArrayList<Course> allCourseArray = new ArrayList<>();
+
+        Cursor cursor = appDatabase.rawQuery("SELECT * FROM course", null);
+
+        int courseIdField = cursor.getColumnIndex("courseId");
+
+        if (cursor.getCount() > 0)
+        {
+            cursor.moveToFirst();
+            do {
+                int courseId = cursor.getInt(courseIdField);
+                allCourseArray.add(allCourseMap.get(courseId));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return allCourseArray;
     }
 
-    public void addToCourseArrayList(Course course) {
-        courseArrayList.add(course);
+    /*Database Methods - add insert to constructor + add update into setters*/
+    public void getHighestCourseId(){
+
+        String query = "SELECT COUNT(*) AS count FROM course";
+
+        Cursor cursor = appDatabase.rawQuery(query,null);
+
+        cursor.moveToFirst();
+
+        highestCourseId = cursor.getInt(0);
+    }
+    public void insertIntoDB(){
+        appDatabase.execSQL(
+                "INSERT INTO course(courseId, courseName, courseStartDate, courseStartAlert, " +
+                        "courseEndDate, courseEndAlert, courseStatus) " +
+                        "VALUES(" +
+                        this.courseId + ", '" +
+                        this.courseName + "', '" +
+                        this.courseStartDate + "', " +
+                        (this.courseStartAlert ? 1 : 0) + ", '" +
+                        this.courseEndDate + "', " +
+                        (this.courseEndAlert ? 1 : 0) + ", '" +
+                        this.courseStatus + "')"
+        );
+    }
+    public void insertIntoDB(Mentor mentor){
+        appDatabase.execSQL(
+                "INSERT INTO courseMentor(courseId, mentorId) " +
+                        "VALUES(" +
+                        this.courseId + ", " +
+                        mentor.getMentorId() + ")"
+        );
+    }
+    public void insertIntoDB(Assessment assessment){
+        appDatabase.execSQL(
+                "INSERT INTO courseAssessment(courseId, assessmentId) " +
+                        "VALUES(" +
+                        this.courseId + ", " +
+                        assessment.getAssessmentId() + ")"
+        );
+    }
+    public void clearCourseMentorDB(){
+        appDatabase.execSQL("DELETE FROM courseMentor WHERE courseId =" + this.getCourseId());
+    }
+    public void updateDB(){
+        appDatabase.execSQL(
+                "UPDATE course " +
+                "SET " +
+                    "courseId = " + this.courseId + ", " +
+                    "courseName = '" + this.courseName + "', " +
+                    "courseStartDate = '" + this.courseStartDate + "', " +
+                    "courseStartAlert = " + (this.courseStartAlert ? 1 : 0)+ ", " +
+                    "courseEndDate = '" + this.courseEndDate + "', " +
+                    "courseEndAlert = " + (this.courseEndAlert ? 1 : 0) + ", " +
+                    "courseStatus = '" + this.courseStatus + "' " +
+                "WHERE courseID = " + this.getCourseId()
+        );
+    }
+    public void updateDB(Mentor mentor){
+        appDatabase.execSQL(
+                "UPDATE courseMentor " +
+                "SET " +
+                    "courseId = " + this.courseId + ", " +
+                    "mentorId = " + mentor.getMentorId() + " " +
+                "WHERE courseID = " + this.getCourseId()
+        );
+    }
+    public static void createCourseFromDB() {
+
+        Cursor cursor = appDatabase.rawQuery("SELECT * FROM course", null);
+
+        int courseIdField = cursor.getColumnIndex("courseId");
+        int courseNameField = cursor.getColumnIndex("courseName");
+        int courseStartDateField = cursor.getColumnIndex("courseStartDate");
+        int courseStartAlertField = cursor.getColumnIndex("courseStartAlert");
+        int courseEndDateField = cursor.getColumnIndex("courseEndDate");
+        int courseEndAlertField = cursor.getColumnIndex("courseEndAlert");
+        int courseStatusField = cursor.getColumnIndex("courseStatus");
+        int activeField = cursor.getColumnIndex("active");
+
+        if (cursor.getCount() > 0) {
+
+            cursor.moveToFirst();
+
+            do {
+                int courseId = Integer.parseInt(cursor.getString(courseIdField));
+                String courseName = cursor.getString(courseNameField);
+                String courseStartDate = cursor.getString(courseStartDateField);
+                Boolean courseStartAlert = cursor.getInt(courseStartAlertField) == 1;
+                String courseEndDate = cursor.getString(courseEndDateField);
+                Boolean courseEndAlert = cursor.getInt(courseEndAlertField) == 1;
+                String courseStatus = cursor.getString(courseStatusField);
+
+                Course course = new Course(courseId, courseName, courseStartDate, courseStartAlert,
+                        courseEndDate, courseEndAlert, courseStatus);
+
+            } while (cursor.moveToNext());
+        }
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(courseId);
-        parcel.writeString(courseName);
-        parcel.writeString(courseStartDate);
-        parcel.writeInt(courseStartAlert ? 1 : 0);
-        parcel.writeString(courseEndDate);
-        parcel.writeInt(courseEndAlert ? 1 : 0);
-        parcel.writeString(courseStatus);
-        parcel.writeTypedList(courseMentor);
-        parcel.writeTypedList(courseAssessment);
-        //parcel.writeValue(courseNotes);
-    }
-    private Course(Parcel in) {
-        courseId = in.readInt();
-        courseName = in.readString();
-        courseStartDate = in.readString();
-        courseStartAlert = in.readInt() != 0;
-        courseEndDate = in.readString();
-        courseEndAlert = in.readInt() != 0;
-        courseStatus = in.readString();
-        in.readTypedList(courseMentor, Mentor.CREATOR);
-        in.readTypedList(courseAssessment,Assessment.CREATOR);
-        //courseNotes = in.readParcelable(getClass().getClassLoader());
-    }
-    // After implementing the `Parcelable` interface, we need to create the
-    // `Parcelable.Creator<MyParcelable> CREATOR` constant for our class;
-    // Notice how it has our class specified as its type.
-    public static final Parcelable.Creator<Course> CREATOR
-            = new Parcelable.Creator<Course>() {
+    /*Parcelable Methods*/
+    public static final Parcelable.Creator<Course> CREATOR = new Parcelable.Creator<Course>() {
 
         // This simply calls our new constructor (typically private) and
         // passes along the unmarshalled `Parcel`, and then returns the new object!
@@ -189,24 +325,39 @@ public class Course implements Parcelable {
             return new Course[size];
         }
     };
-
-    public ArrayList<Mentor> getCourseMentorArray(){
-        return courseMentor;
-    }
-    public void addToCourseMentor(Mentor mentor){
-        courseMentor.add(mentor);
-    }
-    public ArrayList<Assessment> getCourseAssessmentArray(){
-        return courseAssessment;
-    }
-    public void addToCourseAssessment(Assessment assessment){
-        courseAssessment.add(assessment);
-    }
-
-
     @Override
-    public String toString() {
+    public int describeContents() {
+        return 0;
+    }
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(courseId);
+        parcel.writeString(courseName);
+        parcel.writeString(courseStartDate);
+        parcel.writeInt(courseStartAlert ? 1 : 0);
+        parcel.writeString(courseEndDate);
+        parcel.writeInt(courseEndAlert ? 1 : 0);
+        parcel.writeString(courseStatus);
+        //parcel.writeTypedList(courseMentor);
+        //parcel.writeTypedList(courseAssessmentArray);
+        //parcel.writeTypedList(courseNoteArray);
+    }
+    private Course(Parcel in) {
+        courseId = in.readInt();
+        courseName = in.readString();
+        courseStartDate = in.readString();
+        courseStartAlert = in.readInt() != 0;
+        courseEndDate = in.readString();
+        courseEndAlert = in.readInt() != 0;
+        courseStatus = in.readString();
+        //in.readTypedList(courseMentor, Mentor.CREATOR);
+        //in.readTypedList(courseAssessmentArray, Assessment.CREATOR);
+        //in.readTypedList(courseNoteArray, Note.CREATOR);
+    }
+
+    /*String Methods*/
+    @Override
+    public String toString () {
         return this.getCourseName();
     }
-
 }
