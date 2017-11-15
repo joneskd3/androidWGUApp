@@ -3,113 +3,147 @@ package com.example.hello.kjschedule;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
-import android.widget.Toast;
-
-import java.io.File;
+import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
+    SharedPreferences sharedPref;
+    SharedPreferences.Editor editor;
+    boolean reminderOnStart;
+    Button reminderButton;
     public static SQLiteDatabase appDatabase = null;
+
+    StringBuilder upcomingCourseStart;
+    StringBuilder upcomingCourseEnd;
+    StringBuilder upcomingAssessment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
 
+        //create sharedPreference to hold reminder on start preferences
+        sharedPref = this.getSharedPreferences("PREFERENCE_FILE_KEY",Context.MODE_PRIVATE);
+        reminderOnStart = sharedPref.getBoolean("reminderOnStart", true);  // getting boolean
+        reminderButton = findViewById(R.id.button_reminder);
 
-        reminder();
+        //updates text to show state of reminder button
+        if (reminderOnStart){
+            reminderButton.setText(R.string.main_reminders_enabled);
+        } else {
+            reminderButton.setText(R.string.main_reminders_disabled);
+        }
 
-
-
-
-
+        /*SQL Database */
         createDatabase();
 
-
-
-
+        //Create Tables
         createMentorTable();
-        Mentor.createFromDB();
-
         createAssessmentTable();
-        Assessment.createFromDB();
-
-        createTermTable();
-        Term.createFromDB();
-
-        createCourseAssessmentTable();
         createCourseTable();
-
-        createCourseMentorTable();
         createTermTable();
-
+        createCourseAssessmentTable();
+        createCourseMentorTable();
         createTermCourseTable();
-
-        //createTestData();
-
-        Course.createCourseFromDB();
-        //Course.createCourseMentorFromDB();
-
         createNoteTable();
+
+        //Populate Tables
+        Mentor.createFromDB();
+        Assessment.createFromDB();
+        Course.createFromDB();
+        Term.createFromDB();
         Note.createFromDB();
 
+        //Create Test Data
+        createTestData();
+
+        //Only show reminder alert if preference allows
+        if(reminderOnStart) {
+            reminder();
+        }
     }
 
     public void reminder(){
-        AlertDialog alerts = new AlertDialog.Builder(this).create();
+        upcomingCourseStart = new StringBuilder();
+        upcomingCourseEnd = new StringBuilder();
+        upcomingAssessment = new StringBuilder();
 
-        alerts.setTitle("Reminder");
-        alerts.setMessage("Upcoming Exams");
+        //Course Reminders
+        for(Course course : Course.getAllCourseArray()){
+            if  (course.isCourseStartAlert()){
+                upcomingCourseStart. append("-" + course.getCourseName() + " (" + course.getCourseStartDate() + ")\n");
+            }
+            if (course.isCourseEndAlert()){
+                upcomingCourseEnd.append("-" + course.getCourseName() + " (" + course.getCourseEndDate() + ")\n");
+            }
+        }
+        //Assessment Reminders
+        for(Assessment assessment : Assessment.getAllAssessmentArray()){
+            if (assessment.isAssessmentReminder()){
+                upcomingAssessment.append("-" + assessment.getAssessmentTitle() + " (" + assessment.getAssessmentDueDate() + ")\n");
+            }
+        }
+        //Create Alert
+        AlertDialog alerts = new AlertDialog.Builder(this).create();
+        alerts.setTitle("Reminders");
+        alerts.setMessage(
+                "Upcoming Course Start:\n" + upcomingCourseStart +
+                "\nUpcoming Course End:\n" + upcomingCourseEnd +
+                "\nUpcoming Assessments:\n" + upcomingAssessment
+        );
+
+        //Create Buttons
         alerts.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
                 });
-        alerts.setButton(AlertDialog.BUTTON_NEGATIVE, "Disable Reminder",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+        if(reminderOnStart) {
+            alerts.setButton(AlertDialog.BUTTON_NEGATIVE, "Disable Reminder On Start",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            editor.putBoolean("reminderOnStart", false); //updates shared preference if disable selected
+                            editor.commit(); // commit changes
+                            reminderOnStart = sharedPref.getBoolean("reminderOnStart", true);
+                            reminderButton.setText(R.string.main_reminders_disabled); //updates button text
+
+                            dialog.dismiss();
+                        }
+                    });
+        } else {
+            alerts.setButton(AlertDialog.BUTTON_POSITIVE, "Enable Reminder On Start",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            editor.putBoolean("reminderOnStart", true); //updates shared preference
+                            editor.commit(); // commit changes
+                            reminderOnStart = sharedPref.getBoolean("reminderOnStart", true);
+                            reminderButton.setText(R.string.main_reminders_enabled); //updates button text
+
+                            dialog.dismiss();
+                        }
+                    });
+        }
+
         alerts.show();
     }
+
+    /*Button handlers*/
     public void handleRemindersButton(View view){
-        AlertDialog alerts = new AlertDialog.Builder(this).create();
-
-        alerts.setTitle("Reminder");
-        alerts.setMessage("Upcoming Exams");
-        alerts.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-        alerts.setButton(AlertDialog.BUTTON_NEGATIVE, "Disable Reminder",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-        alerts.show();
+       reminder();
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.add, menu);
-        return true;
-    }
-
     public void handleTermsButton(View view){
         Intent intent = new Intent(this, TermListActivity.class);
         startActivity(intent);
@@ -126,36 +160,30 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MentorListActivity.class);
         startActivity(intent);
     }
+
     /*Creates test data */
     public void createTestData() {
 
-       /* Course testCourse1 = new Course("C183", "12/12/2018", true,
-                "12/30/2018", true, "In Process", null,
-                null, null);
+        if(Course.getAllCourseArray().size() == 0) {
+            new Course("Test Course I", "12/01/2017",true,
+                    "12/30/2017", true, "In Process");
+        }
 
-        Course testCourse2 = new Course("C893", "12/12/2018", true,
-                "12/30/2018", true, "In Process", null,
-                null, null);
-        Course testCourse3 = new Course("C778", "12/12/2018", true,
-                "12/30/2018", true, "In Process", null,
-                null, null);
-        */
-        /*
-        Mentor testMentor1 = new Mentor("Joe","333-333-9993","joe@wgu.edu");
-        Mentor testMentor2 = new Mentor("Sue","333-333-9993","Sue@wgu.edu");
-        Mentor testMentor3 = new Mentor("Tom","333-333-9993","Tom@wgu.edu");
-        Mentor testMentor4 = new Mentor("Barb","333-333-9993","Barb@wgu.edu");
-        */
-        Assessment testAssessment1 = new Assessment("Performance","Assess C183","12/1/2017",true);
-        Assessment testAssessment2 = new Assessment("Objective","Perform 388","12/30/2017",true);
-        Assessment testAssessment3 = new Assessment("Performance","Objective II","12/1/2017",true);
-        /*
-        Term testTerm1 = new Term("Term 1","12/1/2016","12/2/2016");
-        Term testTerm2 = new Term("Term 2","12/1/2017","12/2/2017");
-        Term testTerm3 = new Term("Term 3","12/1/2018","12/2/2018");
-        */
+        if(Mentor.getAllMentorArray().size() == 0){
+            new Mentor("Joe Test", "333-333-9928","joetest@wgu.edu");
+        }
+
+        if(Assessment.getAllAssessmentArray().size() == 0){
+            new Assessment("Performance","Test Assessment I",
+                    "12/15/2017",true);
+        }
+
+        if(Term.getAllTermArray().size() == 0){
+            new Term("Term I", "12/01/2017","05/01/2018");
+        }
     }
 
+    /*Database Methods*/
     private void createDatabase() {
         try {
             appDatabase = openOrCreateDatabase("schedule.db", Context.MODE_PRIVATE, null);
@@ -235,12 +263,4 @@ public class MainActivity extends AppCompatActivity {
                 "courseId INTEGER);"
         );
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //appDatabase.delete("Course",null,null);
-    }
-
-
 }

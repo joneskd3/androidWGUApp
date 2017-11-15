@@ -3,33 +3,28 @@ package com.example.hello.kjschedule;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.example.hello.kjschedule.MainActivity.appDatabase;
 
-/**
- * Created by owner on 11/9/2017.
- */
-
 public class Assessment implements Parcelable {
+    //mapping table
     public static HashMap<Integer,Assessment> allAssessmentMap = new HashMap<>();
 
+    //instance variables
     private int assessmentId;
     private String assessmentType;
     private String assessmentDescription;
     private String assessmentDueDate;
     private boolean assessmentReminder;
 
-    private static int highestAssessmentId = 0;
+    private static int highestAssessmentId = 0; //highest id for new assignment
 
-    private static ArrayList<Assessment> assessmentArrayList = new ArrayList<>();
-
+    /*Constructors*/
     public Assessment(){
         this("","","",false);
     }
-
     public Assessment(String assessmentType, String assessmentDescription, String assessmentDueDate, boolean assessmentReminder) {
         this.getHighestId();
         this.assessmentId = highestAssessmentId;
@@ -42,6 +37,7 @@ public class Assessment implements Parcelable {
         allAssessmentMap.put(this.assessmentId,this);
         this.insertIntoDB();
     }
+    //Database constructor - id exists
     public Assessment(int assessmentId, String assessmentType, String assessmentDescription, String assessmentDueDate, boolean assessmentReminder) {
         this.assessmentId = assessmentId;
         this.assessmentType = assessmentType;
@@ -52,40 +48,41 @@ public class Assessment implements Parcelable {
         allAssessmentMap.put(this.assessmentId,this);
     }
 
-    public int getAssessmentId() {
+    /*Setter + Getter*/
+    int getAssessmentId() {
         return assessmentId;
     }
-    public String getAssessmentType() {
+    String getAssessmentType() {
         return assessmentType;
     }
-    public void setAssessmentType(String assessmentType) {
+    void setAssessmentType(String assessmentType) {
         this.assessmentType = assessmentType;
         this.updateDB();
     }
-    public String getAssessmentTitle() {
+    String getAssessmentTitle() {
         return assessmentDescription;
     }
-    public void setAssessmentTitle(String assessmentDescription) {
+    void setAssessmentTitle(String assessmentDescription) {
         this.assessmentDescription = assessmentDescription;
         this.updateDB();
     }
-    public String getAssessmentDueDate() {
+    String getAssessmentDueDate() {
         return assessmentDueDate;
     }
-    public void setAssessmentDueDate(String assessmentDueDate) {
+    void setAssessmentDueDate(String assessmentDueDate) {
         this.assessmentDueDate = assessmentDueDate;
         this.updateDB();
     }
-    public boolean isAssessmentReminder() {
+    boolean isAssessmentReminder() {
         return assessmentReminder;
     }
-    public void setAssessmentReminder(boolean assessmentReminder) {
+    void setAssessmentReminder(boolean assessmentReminder) {
         this.assessmentReminder = assessmentReminder;
         this.updateDB();
     }
 
-
-    public static ArrayList<Assessment> getAllAssessmentArray() {
+    //returns all assessments
+    static ArrayList<Assessment> getAllAssessmentArray() {
         ArrayList<Assessment> allAssessmentArray = new ArrayList<>();
 
         Cursor cursor = appDatabase.rawQuery("SELECT * FROM assessment", null);
@@ -104,9 +101,8 @@ public class Assessment implements Parcelable {
         return allAssessmentArray;
     }
 
-
     /*Database Methods - add insert to constructor + add update into setters*/
-    public void getHighestId(){
+    private void getHighestId(){
 
         String query = "SELECT MAX (assessmentId) FROM assessment";
 
@@ -115,8 +111,9 @@ public class Assessment implements Parcelable {
         cursor.moveToFirst();
 
         highestAssessmentId = cursor.getInt(0) + 1;
+        cursor.close();
     }
-    public void insertIntoDB(){
+    private void insertIntoDB(){
         appDatabase.execSQL(
                 "INSERT INTO assessment(assessmentId, assessmentType, assessmentDescription, assessmentDueDate, assessmentReminder) " +
                         "VALUES(" +
@@ -127,7 +124,7 @@ public class Assessment implements Parcelable {
                         (this.assessmentReminder ? 1 : 0) + ")"
         );
     }
-    public void updateDB(){
+    private void updateDB(){
         appDatabase.execSQL(
                 "UPDATE assessment " +
                         "SET " +
@@ -142,7 +139,7 @@ public class Assessment implements Parcelable {
     public void deleteFromDB(){
         appDatabase.execSQL("DELETE from assessment WHERE assessmentId = " + this.assessmentId);
     }
-    public static void createFromDB() {
+    static void createFromDB() {
 
         Cursor cursor = appDatabase.rawQuery("SELECT * FROM assessment", null);
 
@@ -162,20 +159,18 @@ public class Assessment implements Parcelable {
                 String assessmentDueDate = cursor.getString(assessmentDueDateField);
                 Boolean assementReminder = cursor.getInt(assessmentReminderField) == 1;
 
-                Assessment assessment = new Assessment(assessmentId, assessmentType, assessmentDescription, assessmentDueDate, assementReminder);
+                new Assessment(assessmentId, assessmentType, assessmentDescription, assessmentDueDate, assementReminder);
 
             } while (cursor.moveToNext());
             cursor.close();
         }
     }
 
-
-
+    /*Parcelable Methods*/
     @Override
     public int describeContents() {
         return 0;
     }
-
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(assessmentId);
@@ -183,9 +178,6 @@ public class Assessment implements Parcelable {
         parcel.writeString(assessmentDescription);
         parcel.writeString(assessmentDueDate);
         parcel.writeInt(assessmentReminder ? 1 : 0);
-        //parcel.writeTypedList(Mentor.getAllMentorArray());
-        //parcel.writeList(courseAssessment);
-        //parcel.writeValue(courseNotes);
     }
     private Assessment(Parcel in) {
         assessmentId = in.readInt();
@@ -193,25 +185,13 @@ public class Assessment implements Parcelable {
         assessmentDescription = in.readString();
         assessmentDueDate = in.readString();
         assessmentReminder = in.readInt() != 0;
-
-        //courseAssessment =  in.readList(courseAssessment,getClass().getClassLoader());
-        //courseAssessment = in.readList(courseAssessment,getClass().getClassLoader());
-        //courseNotes = in.readParcelable(getClass().getClassLoader());
     }
-    // After implementing the `Parcelable` interface, we need to create the
-    // `Parcelable.Creator<MyParcelable> CREATOR` constant for our class;
-    // Notice how it has our class specified as its type.
     public static final Parcelable.Creator<Assessment> CREATOR
             = new Parcelable.Creator<Assessment>() {
-
-        // This simply calls our new constructor (typically private) and
-        // passes along the unmarshalled `Parcel`, and then returns the new object!
         @Override
         public Assessment createFromParcel(Parcel in) {
             return new Assessment(in);
         }
-
-        // We just need to copy this and change the type to match our class.
         @Override
         public Assessment[] newArray(int size) {
             return new Assessment[size];
@@ -221,6 +201,6 @@ public class Assessment implements Parcelable {
     @Override
     public String toString() {
 
-        return this.getAssessmentTitle() + " [" + this.getAssessmentType() + "]";
+        return this.getAssessmentTitle() + " [" + this.getAssessmentType() + "] - " + this.getAssessmentDueDate() ;
     }
 }

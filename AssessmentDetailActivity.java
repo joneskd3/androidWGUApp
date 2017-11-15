@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ public class AssessmentDetailActivity extends AppCompatActivity {
     private TextView assessmentTitleField;
     private TextView assessmentStartField;
     private TextView assessmentTypeField;
+    private ImageView assessmentReminderField;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,7 @@ public class AssessmentDetailActivity extends AppCompatActivity {
         assessmentTitleField = findViewById(R.id.text_title);
         assessmentStartField = findViewById(R.id.text_phone);
         assessmentTypeField = findViewById(R.id.text_type);
+        assessmentReminderField = findViewById(R.id.img_reminder);
     }
     public void populateFields() {
 
@@ -50,6 +53,12 @@ public class AssessmentDetailActivity extends AppCompatActivity {
         assessmentTitleField.setText(selectedAssessment.getAssessmentTitle());
         assessmentStartField.setText(selectedAssessment.getAssessmentDueDate());
         assessmentTypeField.setText(selectedAssessment.getAssessmentType());
+
+        if(selectedAssessment.isAssessmentReminder()){
+            assessmentReminderField.setImageResource(R.mipmap.ic_notifications_active_black_24dp);
+        } else {
+            assessmentReminderField.setImageResource(R.mipmap.ic_notifications_off_black_24dp);
+        }
     }
 
     @Override

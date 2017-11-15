@@ -13,9 +13,10 @@ import static com.example.hello.kjschedule.MainActivity.appDatabase;
 
 public class Course implements Parcelable {
 
-    /*All Courses*/
+    //Mapping table
     public static HashMap<Integer, Course> allCourseMap = new HashMap<Integer, Course>();
 
+    //Instance variables
     private int courseId;
     private String courseName;
     private String courseStartDate;
@@ -24,12 +25,7 @@ public class Course implements Parcelable {
     private boolean courseEndAlert;
     private String courseStatus;
 
-    /*Arrays*/
-    //private ArrayList<Mentor> courseMentor = new ArrayList<>();
-    //private ArrayList<Assessment> courseAssessmentArray = new ArrayList<>();
-    //private ArrayList<Note> courseNoteArray = new ArrayList<>();
-
-    /*Statics*/
+    //used for new course id assignment
     private static int highestCourseId = 0;
 
     /*Constructors*/
@@ -37,7 +33,6 @@ public class Course implements Parcelable {
         this("", "", false, "",
                 false, "");
     }
-
     public Course(String courseName, String courseStartDate, boolean courseStartAlert,
                   String courseEndDate, boolean courseEndAlert, String courseStatus) {
         getHighestCourseId();
@@ -53,7 +48,6 @@ public class Course implements Parcelable {
         allCourseMap.put(this.courseId,this);
         this.insertIntoDB();
     }
-
     /*Constructor for DB population*/
     public Course(int courseId, String courseName, String courseStartDate, boolean courseStartAlert,
                   String courseEndDate, boolean courseEndAlert, String courseStatus) {
@@ -71,55 +65,54 @@ public class Course implements Parcelable {
     }
 
     /*Setters and Getters*/
-
-    public int getCourseId() {
+    int getCourseId() {
         return courseId;
     }
-    public String getCourseName() {
+    String getCourseName() {
         return courseName;
     }
-    public void setCourseName(String courseName) {
+    void setCourseName(String courseName) {
         this.courseName = courseName;
         this.updateDB();
     }
-    public String getCourseStartDate() {
+    String getCourseStartDate() {
         return courseStartDate;
     }
-    public void setCourseStartDate(String courseStartDate) {
+    void setCourseStartDate(String courseStartDate) {
         this.courseStartDate = courseStartDate;
         this.updateDB();
     }
-    public boolean isCourseStartAlert() {
+    boolean isCourseStartAlert() {
         return courseStartAlert;
     }
-    public void setCourseStartAlert(boolean courseStartAlert) {
+    void setCourseStartAlert(boolean courseStartAlert) {
         this.courseStartAlert = courseStartAlert;
         this.updateDB();
     }
-    public String getCourseEndDate() {
+    String getCourseEndDate() {
         return courseEndDate;
     }
-    public void setCourseEndDate(String courseEndDate) {
+    void setCourseEndDate(String courseEndDate) {
         this.courseEndDate = courseEndDate;
         this.updateDB();
     }
-    public boolean isCourseEndAlert() {
+    boolean isCourseEndAlert() {
         return courseEndAlert;
     }
-    public void setCourseEndAlert(boolean courseEndAlert) {
+    void setCourseEndAlert(boolean courseEndAlert) {
         this.courseEndAlert = courseEndAlert;
         this.updateDB();
     }
-    public String getCourseStatus() {
+    String getCourseStatus() {
         return courseStatus;
     }
-    public void setCourseStatus(String courseStatus) {
+    void setCourseStatus(String courseStatus) {
         this.courseStatus = courseStatus;
         this.updateDB();
     }
 
     /*ArrayList Methods*/
-    public ArrayList<Mentor> getCourseMentorArray() {
+    ArrayList<Mentor> getCourseMentorArray() {
 
         ArrayList<Mentor> courseMentorArray = new ArrayList<>();
 
@@ -139,7 +132,7 @@ public class Course implements Parcelable {
         }
         return courseMentorArray;
     }
-    public ArrayList<Assessment> getCourseAssessmentArray() {
+    ArrayList<Assessment> getCourseAssessmentArray() {
 
         ArrayList<Assessment> courseAssessmentArray = new ArrayList<>();
 
@@ -159,7 +152,7 @@ public class Course implements Parcelable {
         }
         return courseAssessmentArray;
     }
-    public ArrayList<Note> getCourseNoteArray() {
+    ArrayList<Note> getCourseNoteArray() {
 
         ArrayList<Note> courseNoteArray = new ArrayList<>();
 
@@ -179,17 +172,7 @@ public class Course implements Parcelable {
         }
         return courseNoteArray;
     }
-    /*
-    public ArrayList<Assessment> getCourseAssessmentArray() {
-        return true;
-    }
-    */
-    /*
-    public ArrayList<Note> getCourseNotesArray() {
-        return courseNoteArray;
-    }
-    */
-    public static ArrayList<Course> getAllCourseArray() {
+    static ArrayList<Course> getAllCourseArray() {
         ArrayList<Course> allCourseArray = new ArrayList<>();
 
         Cursor cursor = appDatabase.rawQuery("SELECT * FROM course", null);
@@ -209,17 +192,15 @@ public class Course implements Parcelable {
     }
 
     /*Database Methods - add insert to constructor + add update into setters*/
-    public void getHighestCourseId(){
+    private void getHighestCourseId(){
 
         String query = "SELECT MAX(courseId) AS max FROM course";
-
         Cursor cursor = appDatabase.rawQuery(query,null);
-
         cursor.moveToFirst();
-
         highestCourseId = cursor.getInt(0) + 1;
+        cursor.close();
     }
-    public void insertIntoDB(){
+    private void insertIntoDB(){
         appDatabase.execSQL(
                 "INSERT INTO course(courseId, courseName, courseStartDate, courseStartAlert, " +
                         "courseEndDate, courseEndAlert, courseStatus) " +
@@ -233,7 +214,7 @@ public class Course implements Parcelable {
                         this.courseStatus + "')"
         );
     }
-    public void insertIntoDB(Mentor mentor){
+    void insertIntoDB(Mentor mentor){
         appDatabase.execSQL(
                 "INSERT INTO courseMentor(courseId, mentorId) " +
                         "VALUES(" +
@@ -241,7 +222,7 @@ public class Course implements Parcelable {
                         mentor.getMentorId() + ")"
         );
     }
-    public void insertIntoDB(Assessment assessment){
+    void insertIntoDB(Assessment assessment){
         appDatabase.execSQL(
                 "INSERT INTO courseAssessment(courseId, assessmentId) " +
                         "VALUES(" +
@@ -249,13 +230,13 @@ public class Course implements Parcelable {
                         assessment.getAssessmentId() + ")"
         );
     }
-    public void clearCourseMentorDB(){
+    void clearCourseMentorDB(){
         appDatabase.execSQL("DELETE FROM courseMentor WHERE courseId =" + this.getCourseId());
     }
-    public void clearCourseAssessmentDB(){
+    void clearCourseAssessmentDB(){
         appDatabase.execSQL("DELETE FROM courseAssessment WHERE courseId =" + this.getCourseId());
     }
-    public void updateDB(){
+    private void updateDB(){
         appDatabase.execSQL(
                 "UPDATE course " +
                 "SET " +
@@ -269,15 +250,6 @@ public class Course implements Parcelable {
                 "WHERE courseID = " + this.getCourseId()
         );
     }
-    public void updateDB(Mentor mentor){
-        appDatabase.execSQL(
-                "UPDATE courseMentor " +
-                "SET " +
-                    "courseId = " + this.courseId + ", " +
-                    "mentorId = " + mentor.getMentorId() + " " +
-                "WHERE courseID = " + this.getCourseId()
-        );
-    }
     public void deleteFromDB(){
         appDatabase.execSQL("DELETE from course WHERE courseId = " + this.courseId);
         appDatabase.execSQL("DELETE from courseMentor WHERE courseId = " + this.courseId);
@@ -285,7 +257,7 @@ public class Course implements Parcelable {
         appDatabase.execSQL("DELETE from termCourse WHERE courseId = " + this.courseId);
         appDatabase.execSQL("DELETE from note WHERE courseId = " + this.courseId);
     }
-    public static void createCourseFromDB() {
+    static void createFromDB() {
 
         Cursor cursor = appDatabase.rawQuery("SELECT * FROM course", null);
 
@@ -296,12 +268,10 @@ public class Course implements Parcelable {
         int courseEndDateField = cursor.getColumnIndex("courseEndDate");
         int courseEndAlertField = cursor.getColumnIndex("courseEndAlert");
         int courseStatusField = cursor.getColumnIndex("courseStatus");
-        int activeField = cursor.getColumnIndex("active");
 
-        if (cursor.getCount() > 0) {
-
+        if (cursor.getCount() > 0)
+        {
             cursor.moveToFirst();
-
             do {
                 int courseId = Integer.parseInt(cursor.getString(courseIdField));
                 String courseName = cursor.getString(courseNameField);
@@ -311,10 +281,10 @@ public class Course implements Parcelable {
                 Boolean courseEndAlert = cursor.getInt(courseEndAlertField) == 1;
                 String courseStatus = cursor.getString(courseStatusField);
 
-                Course course = new Course(courseId, courseName, courseStartDate, courseStartAlert,
+                new Course(courseId, courseName, courseStartDate, courseStartAlert,
                         courseEndDate, courseEndAlert, courseStatus);
-
             } while (cursor.moveToNext());
+            cursor.close();
         }
     }
 
@@ -322,14 +292,11 @@ public class Course implements Parcelable {
     /*Parcelable Methods*/
     public static final Parcelable.Creator<Course> CREATOR = new Parcelable.Creator<Course>() {
 
-        // This simply calls our new constructor (typically private) and
-        // passes along the unmarshalled `Parcel`, and then returns the new object!
         @Override
         public Course createFromParcel(Parcel in) {
             return new Course(in);
         }
 
-        // We just need to copy this and change the type to match our class.
         @Override
         public Course[] newArray(int size) {
             return new Course[size];
@@ -348,9 +315,6 @@ public class Course implements Parcelable {
         parcel.writeString(courseEndDate);
         parcel.writeInt(courseEndAlert ? 1 : 0);
         parcel.writeString(courseStatus);
-        //parcel.writeTypedList(courseMentor);
-        //parcel.writeTypedList(courseAssessmentArray);
-        //parcel.writeTypedList(courseNoteArray);
     }
     private Course(Parcel in) {
         courseId = in.readInt();
@@ -360,9 +324,6 @@ public class Course implements Parcelable {
         courseEndDate = in.readString();
         courseEndAlert = in.readInt() != 0;
         courseStatus = in.readString();
-        //in.readTypedList(courseMentor, Mentor.CREATOR);
-        //in.readTypedList(courseAssessmentArray, Assessment.CREATOR);
-        //in.readTypedList(courseNoteArray, Note.CREATOR);
     }
 
     /*String Methods*/

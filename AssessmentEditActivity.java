@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 public class AssessmentEditActivity extends AppCompatActivity {
@@ -22,6 +23,7 @@ public class AssessmentEditActivity extends AppCompatActivity {
     private EditText assessmentTitleField;
     private EditText assessmentStartField;
     private Spinner assessmentTypeField;
+    private Switch assessmentReminderField;
 
 
     @Override
@@ -31,8 +33,6 @@ public class AssessmentEditActivity extends AppCompatActivity {
         newAssessment = getIntent().getBooleanExtra("New", false);
 
         populateFieldVariables();
-
-
 
         if (newAssessment) {
             populateTypeField();
@@ -56,10 +56,13 @@ public class AssessmentEditActivity extends AppCompatActivity {
         String assessmentTitle = assessmentTitleField.getText().toString();
         String assessmentDueDate = assessmentStartField.getText().toString();
         String assessmentType = assessmentTypeField.getSelectedItem().toString();
+        Boolean assessmentReminder = assessmentReminderField.isChecked();
+
 
         selectedAssessment.setAssessmentTitle(assessmentTitle);
         selectedAssessment.setAssessmentDueDate(assessmentDueDate);
         selectedAssessment.setAssessmentType(assessmentType);
+        selectedAssessment.setAssessmentReminder(assessmentReminder);
 
     }
 
@@ -67,6 +70,7 @@ public class AssessmentEditActivity extends AppCompatActivity {
         assessmentTitleField = findViewById(R.id.text_title);
         assessmentStartField = findViewById(R.id.text_phone);
         assessmentTypeField = findViewById(R.id.text_type);
+        assessmentReminderField = findViewById(R.id.img_reminder);
     }
 
     public void populateFields() {
@@ -74,6 +78,7 @@ public class AssessmentEditActivity extends AppCompatActivity {
         /*Update Fields*/
         assessmentTitleField.setText(selectedAssessment.getAssessmentTitle());
         assessmentStartField.setText(selectedAssessment.getAssessmentDueDate());
+        assessmentReminderField.setChecked(selectedAssessment.isAssessmentReminder());
 
         populateTypeField();
     }

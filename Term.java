@@ -153,7 +153,7 @@ public class Term implements Parcelable{
         termEnd = in.readString();
     }
 
-    /*Database Methods - add insert to constructor + add update into setters*/
+    /*Database Methods*/
     public void getHighestId(){
 
         String query = "SELECT MAX (termId) FROM term";
@@ -164,7 +164,6 @@ public class Term implements Parcelable{
 
         highestTermId = cursor.getInt(0) + 1;
     }
-    //add to constructor
     public void insertIntoDB(){
         appDatabase.execSQL(
                 "INSERT INTO term(termId, termName, termStart, termEnd) " +
@@ -220,16 +219,13 @@ public class Term implements Parcelable{
                 String termStart = cursor.getString(termStartField);
                 String termEnd = cursor.getString(termEndField);
 
-
                 Term term = new Term(termId, termName, termStart, termEnd);
 
             } while (cursor.moveToNext());
         }
     }
 
-    // After implementing the `Parcelable` interface, we need to create the
-    // `Parcelable.Creator<MyParcelable> CREATOR` constant for our class;
-    // Notice how it has our class specified as its type.
+
     public static final Parcelable.Creator<Term> CREATOR
             = new Parcelable.Creator<Term>() {
 

@@ -61,7 +61,7 @@ public class CourseEditActivity extends AppCompatActivity {
         courseTitleField = findViewById(R.id.text_title);
         courseStartDateField = findViewById(R.id.text_phone);
         courseEndDateField = findViewById(R.id.text_email);
-        courseStartReminderField = findViewById(R.id.img_start_reminder);
+        courseStartReminderField = findViewById(R.id.img_reminder);
         courseEndReminderField = findViewById(R.id.switch_stop_reminder);
         courseStatusField = findViewById(R.id.text_type);
         mentorListField = findViewById(R.id.list_mentor);
