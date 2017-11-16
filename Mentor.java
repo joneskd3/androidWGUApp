@@ -1,5 +1,6 @@
 package com.example.hello.kjschedule;
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -8,9 +9,11 @@ import java.util.HashMap;
 
 import static com.example.hello.kjschedule.MainActivity.appDatabase;
 
+@SuppressWarnings("unused")
 public class Mentor implements Parcelable{
 
     //mapping from id to object
+    @SuppressLint("UseSparseArrays")
     static HashMap<Integer,Mentor> allMentorMap = new HashMap<>();
 
     //instance variables
@@ -37,7 +40,7 @@ public class Mentor implements Parcelable{
         allMentorMap.put(this.mentorId,this);
         this.insertIntoDB();
     }
-    public Mentor (int mentorId, String mentorName, String mentorPhone, String mentorEmail){
+    private Mentor(int mentorId, String mentorName, String mentorPhone, String mentorEmail){
         this.mentorId = mentorId;
         this.mentorName = mentorName;
         this.mentorPhone = mentorPhone;
@@ -139,20 +142,18 @@ public class Mentor implements Parcelable{
         int mentorPhoneField = cursor.getColumnIndex("mentorPhone");
         int mentorEmailField = cursor.getColumnIndex("mentorEmail");
 
-        if (cursor.getCount() > 0) {
-
+        if (cursor.getCount() > 0)
+        {
             cursor.moveToFirst();
-
             do {
                 int mentorId = cursor.getInt(mentorIdField);
                 String mentorName = cursor.getString(mentorNameField);
                 String mentorPhone = cursor.getString(mentorPhoneField);
                 String mentorEmail = cursor.getString(mentorEmailField);
 
-
-                Mentor mentor = new Mentor(mentorId, mentorName, mentorPhone, mentorEmail);
-
+                new Mentor(mentorId, mentorName, mentorPhone, mentorEmail);
             } while (cursor.moveToNext());
+            cursor.close();
         }
     }
 

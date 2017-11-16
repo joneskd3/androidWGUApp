@@ -13,12 +13,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.ShareActionProvider;
 
+@SuppressWarnings("unused")
 public class NoteDetailActivity extends AppCompatActivity {
 
-    ShareActionProvider myshareActionProvider;
-
-    public Note selectedNote; //currently displayed Course object
-    public Course selectedCourse;
+    private Note selectedNote; //currently displayed Course object
+    private Course selectedCourse;
 
     private final int REQUEST_CODE = 20; //used to determine result type
 
@@ -33,20 +32,20 @@ public class NoteDetailActivity extends AppCompatActivity {
         selectedNote = getIntent().getParcelableExtra("noteObject");
         selectedNote = Note.allNoteMap.get(selectedNote.getNoteId());
 
-
         /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
         populateFields(); //updates fields with values
     }
-    public void populateFieldVariables(){
+    private void populateFieldVariables(){
         noteTitleField = findViewById(R.id.text_title);
         noteTextField = findViewById(R.id.text_email);
     }
-    public void populateFields() {
+    private void populateFields() {
 
         populateFieldVariables();
 
@@ -65,30 +64,19 @@ public class NoteDetailActivity extends AppCompatActivity {
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
 
         getMenuInflater().inflate(R.menu.edit_share, menu);
 
+        //Share button
         MenuItem shareItem = menu.findItem(R.id.share_button);
         ShareActionProvider myShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
 
         Intent myShareIntent = new Intent(Intent.ACTION_SEND);
         myShareIntent.setType("text/plain");
-        //String shareBody = "here goes your share content body";
         myShareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, selectedNote.getNoteTitle());
         myShareIntent.putExtra(Intent.EXTRA_TEXT, selectedNote.getNoteText());
 
         myShareActionProvider.setShareIntent(myShareIntent);
-
-
-        //sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-        //mShareActionProvider = (ShareActionProvider)MenuItemCompat.getActionProvider(item);
-        //create the sharing intent
-
-
-
-
-
 
         return true;
     }
@@ -120,11 +108,4 @@ public class NoteDetailActivity extends AppCompatActivity {
                 return true;
         }
     }
-    /*
-    private void setShareIntent(Intent shareIntent) {
-        if (shareActionProvider != null) {
-            shareActionProvider.setShareIntent(shareIntent);
-        }
-    }
-    */
 }

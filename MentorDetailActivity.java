@@ -9,11 +9,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MentorDetailActivity extends AppCompatActivity {
 
-    public Mentor selectedMentor; //currently displayed Course object
+    private Mentor selectedMentor; //currently displayed object
 
     private final int REQUEST_CODE = 20; //used to determine result type
 
@@ -33,16 +32,17 @@ public class MentorDetailActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
         populateFields(); //updates fields with values
     }
-    public void populateFieldVariables(){
+    private void populateFieldVariables(){
         mentorNameField = findViewById(R.id.text_name);
         mentorPhoneField = findViewById(R.id.text_phone);
         mentorEmailField = findViewById(R.id.text_email);
     }
-    public void populateFields() {
+    private void populateFields() {
 
         populateFieldVariables();
 
@@ -61,7 +61,6 @@ public class MentorDetailActivity extends AppCompatActivity {
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.edit, menu);
         return true;
     }

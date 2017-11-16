@@ -12,44 +12,38 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 public class TermListActivity extends AppCompatActivity {
 
-    private final int REQUEST_CODE = 20; //used to determine result type
-
+    private final int REQUEST_CODE = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_term_list);
 
-
           /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
         populateTermList();
     }
     @Override
     public void onResume() {
-        super.onResume(); // Always call the superclass method first
-
+        super.onResume();
         populateTermList();
     }
 
-
-    public void populateTermList(){
-
+    private void populateTermList(){
 
         final ListView termList = findViewById(R.id.list_terms);
 
-        ArrayAdapter<Term> arrayAdapter = new ArrayAdapter<Term>(this, android.R.layout.simple_list_item_1, Term.getAllTermArray());
+        ArrayAdapter<Term> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, Term.getAllTermArray());
         arrayAdapter.notifyDataSetChanged();
         termList.setAdapter(arrayAdapter);
-
 
         termList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -64,9 +58,9 @@ public class TermListActivity extends AppCompatActivity {
             }
         });
     }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.add, menu);
         return true;
     }
@@ -76,11 +70,7 @@ public class TermListActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.toolbar_add_button:
                 Intent intent = new Intent(this, TermEditActivity.class);
-
-                //Term newTerm = new Term();
-
-                //intent.putExtra("termObject", newTerm);
-                intent.putExtra("New", true); // pass arbitrary data to launched activity
+                intent.putExtra("New", true);
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;
 

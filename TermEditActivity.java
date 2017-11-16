@@ -24,7 +24,6 @@ public class TermEditActivity extends AppCompatActivity {
     private TextView termEndDateField;
     private LinearLayout termCourseListField;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,9 +45,10 @@ public class TermEditActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
     }
-    public void updateTerm(){
+    private void updateTerm(){
 
         String termTitle = termTitleField.getText().toString();
         String termStartDate = termStartDateField.getText().toString();
@@ -59,17 +59,15 @@ public class TermEditActivity extends AppCompatActivity {
         selectedTerm.setTermEnd(termEndDate);
 
         updateTermCourse();
-
     }
 
-    public void populateFieldVariables(){
+    private void populateFieldVariables(){
         termTitleField = findViewById(R.id.term_edit_text_title);
         termStartDateField = findViewById(R.id.text_phone);
         termEndDateField = findViewById(R.id.text_email);
         termCourseListField = findViewById(R.id.term_edit_list_course);
     }
-    public void populateFields() {
-
+    private void populateFields() {
 
         /*Update Fields*/
         termTitleField.setText(selectedTerm.getTermName());
@@ -78,7 +76,7 @@ public class TermEditActivity extends AppCompatActivity {
 
         populateTermCourses();
     }
-    public void populateTermCourses(){
+    private void populateTermCourses(){
         for(Course course : Course.getAllCourseArray())
         {
             CheckBox courseCheckboxField = new CheckBox(this);
@@ -101,7 +99,7 @@ public class TermEditActivity extends AppCompatActivity {
             }
         }
     }
-    public void updateTermCourse(){
+    private void updateTermCourse(){
 
         selectedTerm.clearTermCourseDB();
 
@@ -116,7 +114,6 @@ public class TermEditActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.save, menu);
         return true;
     }
@@ -132,10 +129,10 @@ public class TermEditActivity extends AppCompatActivity {
 
                 Intent data = new Intent();
                 data.putExtra("termObject", selectedTerm);
-                setResult(RESULT_OK, data); // set result code and bundle data for response
+                setResult(RESULT_OK, data);
 
                 Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
-                finish(); // closes the activity, pass data to parent
+                finish();
 
                 return true;
 
@@ -156,17 +153,16 @@ public class TermEditActivity extends AppCompatActivity {
                 return false;
 
 
-            case android.R.id.home: //handles back button
+            case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
 
                 return true;
 
             default:
                 return true;
-
         }
     }
-    public Boolean validationTermHasCourses(){
+    private Boolean validationTermHasCourses(){
         for(int i = 0; i < termCourseListField.getChildCount(); i++){
             CheckBox courseChecked = (CheckBox) termCourseListField.getChildAt(i);
             if (courseChecked.isChecked()){

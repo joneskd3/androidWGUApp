@@ -14,66 +14,52 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 public class CourseListActivity extends AppCompatActivity {
 
     private final int REQUEST_CODE = 20; //used to determine result type
-
-    private Course selectedCourse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_course_list);
 
-
-      /* Set up interface */
+        /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
         populateCourseList();
     }
     @Override
     public void onResume() {
-        super.onResume(); // Always call the superclass method first
-
+        super.onResume();
         populateCourseList();
-
-
     }
 
-    public void populateCourseList(){
-
+    private void populateCourseList(){
 
         final ListView courseList = findViewById(R.id.list_courses);
 
-
-        ArrayAdapter<Course> arrayAdapter = new ArrayAdapter<Course>(this, android.R.layout.simple_list_item_1, Course.getAllCourseArray());
+        ArrayAdapter<Course> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, Course.getAllCourseArray());
         arrayAdapter.notifyDataSetChanged();
         courseList.setAdapter(arrayAdapter);
-
 
         courseList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long row) {
-
                 Course selectedCourse = (Course) courseList.getItemAtPosition(position);
 
                 Intent intent = new Intent(CourseListActivity.this, CourseDetailActivity.class);
                 intent.putExtra("courseObject", selectedCourse);
-                intent.putExtra("mode", 2); // pass arbitrary data to launched activity
-                //intent.putExtra("editCourse",true);
+                intent.putExtra("mode", 2);
                 startActivity(intent);
-
             }
         });
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.add, menu);
         return true;
     }
@@ -86,7 +72,7 @@ public class CourseListActivity extends AppCompatActivity {
 
                 //Course newCourse = new Course();
                 intent.putExtra("new", true);
-                intent.putExtra("mode", 2); // pass arbitrary data to launched activity
+                intent.putExtra("mode", 2);
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;
 
@@ -101,7 +87,6 @@ public class CourseListActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            //selectedCourse = data.getParcelableExtra("courseObject");
             populateCourseList();
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         }

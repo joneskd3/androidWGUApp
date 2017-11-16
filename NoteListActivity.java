@@ -16,47 +16,39 @@ import android.widget.Toast;
 
 public class NoteListActivity extends AppCompatActivity {
 
-    private final int REQUEST_CODE = 20; //used to determine result type
-    private Note selectedNote;
+    private final int REQUEST_CODE = 20;
     private static Course selectedCourse;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_list);
 
-        //retrieves Course object from calling activity
+        selectedCourse = getIntent().getParcelableExtra("courseObject");
+        selectedCourse = Course.allCourseMap.get(selectedCourse.getCourseId());
 
-            selectedCourse = getIntent().getParcelableExtra("courseObject");
-            selectedCourse = Course.allCourseMap.get(selectedCourse.getCourseId());
-
-
-
-          /* Set up interface */
+        /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
         populateNoteList();
     }
     @Override
     public void onResume() {
-        super.onResume(); // Always call the superclass method first
-
+        super.onResume();
         populateNoteList();
     }
 
-
-    public void populateNoteList(){
+    private void populateNoteList(){
 
         final ListView noteList = findViewById(R.id.list_notes);
 
-        ArrayAdapter<Note> arrayAdapter = new ArrayAdapter<Note>(this, android.R.layout.simple_list_item_1, selectedCourse.getCourseNoteArray());
+        ArrayAdapter<Note> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, selectedCourse.getCourseNoteArray());
         arrayAdapter.notifyDataSetChanged();
         noteList.setAdapter(arrayAdapter);
-
 
         noteList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -74,7 +66,6 @@ public class NoteListActivity extends AppCompatActivity {
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.add, menu);
         return true;
     }
@@ -85,15 +76,12 @@ public class NoteListActivity extends AppCompatActivity {
             case R.id.toolbar_add_button:
                 Intent intent = new Intent(this, NoteEditActivity.class);
 
-                //Note newNote = new Note();
-
-                //intent.putExtra("noteObject", newNote);
-                intent.putExtra("New", true); // pass arbitrary data to launched activity
-                intent.putExtra("courseObject", selectedCourse); // pass arbitrary data to launched activity
+                intent.putExtra("New", true);
+                intent.putExtra("courseObject", selectedCourse);
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;
 
-            case android.R.id.home: //handles back button
+            case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
 

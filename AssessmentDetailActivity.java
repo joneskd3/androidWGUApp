@@ -14,10 +14,11 @@ import android.widget.Toast;
 
 public class AssessmentDetailActivity extends AppCompatActivity {
 
-    public Assessment selectedAssessment; //currently displayed Course object
+    private Assessment selectedAssessment; //currently displayed object
 
     private final int REQUEST_CODE = 20; //used to determine result type
 
+    //field variables
     private TextView assessmentTitleField;
     private TextView assessmentStartField;
     private TextView assessmentTypeField;
@@ -35,17 +36,18 @@ public class AssessmentDetailActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
         populateFields(); //updates fields with values
     }
-    public void populateFieldVariables(){
+    private void populateFieldVariables(){
         assessmentTitleField = findViewById(R.id.text_title);
         assessmentStartField = findViewById(R.id.text_phone);
         assessmentTypeField = findViewById(R.id.text_type);
         assessmentReminderField = findViewById(R.id.img_reminder);
     }
-    public void populateFields() {
+    private void populateFields() {
 
         populateFieldVariables();
 
@@ -71,7 +73,6 @@ public class AssessmentDetailActivity extends AppCompatActivity {
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.edit, menu);
         return true;
     }

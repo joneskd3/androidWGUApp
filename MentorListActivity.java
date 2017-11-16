@@ -17,8 +17,6 @@ import android.widget.Toast;
 public class MentorListActivity extends AppCompatActivity {
 
     private final int REQUEST_CODE = 20; //used to determine result type
-    private Mentor selectedMentor;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,27 +28,24 @@ public class MentorListActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
         populateMentorList();
     }
     @Override
     public void onResume() {
-        super.onResume(); // Always call the superclass method first
-
+        super.onResume();
         populateMentorList();
     }
 
-
-    public void populateMentorList(){
-
+    private void populateMentorList(){
 
         final ListView mentorList = findViewById(R.id.list_mentors);
 
-        ArrayAdapter<Mentor> arrayAdapter = new ArrayAdapter<Mentor>(this, android.R.layout.simple_list_item_1, Mentor.getAllMentorArray());
+        ArrayAdapter<Mentor> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, Mentor.getAllMentorArray());
         arrayAdapter.notifyDataSetChanged();
         mentorList.setAdapter(arrayAdapter);
-
 
         mentorList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -67,7 +62,6 @@ public class MentorListActivity extends AppCompatActivity {
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.add, menu);
         return true;
     }
@@ -77,10 +71,6 @@ public class MentorListActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.toolbar_add_button:
                 Intent intent = new Intent(this, MentorEditActivity.class);
-
-                //Mentor newMentor = new Mentor();
-
-                //intent.putExtra("mentorObject", newMentor);
                 intent.putExtra("New", true); // pass arbitrary data to launched activity
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;

@@ -46,18 +46,18 @@ public class CourseEditActivity extends AppCompatActivity {
             selectedCourse = getIntent().getParcelableExtra("courseObject");
             selectedCourse = Course.allCourseMap.get(selectedCourse.getCourseId());
         }
-        populateFields(selectedCourse);
-
+        populateFields();
 
         /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
     }
 
-    public void populateFieldVariables(){
+    private void populateFieldVariables(){
         courseTitleField = findViewById(R.id.text_title);
         courseStartDateField = findViewById(R.id.text_phone);
         courseEndDateField = findViewById(R.id.text_email);
@@ -67,24 +67,23 @@ public class CourseEditActivity extends AppCompatActivity {
         mentorListField = findViewById(R.id.list_mentor);
         assessmentListField = findViewById(R.id.list_assessment);
     }
-    public void populateFields(Course testCourse){
+    private void populateFields(){
 
         populateFieldVariables();
 
         if(!newCourse) {
 
-            courseTitleField.setText(testCourse.getCourseName());
-            courseStartDateField.setText(testCourse.getCourseStartDate());
-            courseEndDateField.setText(testCourse.getCourseEndDate());
-            courseStartReminderField.setChecked(testCourse.isCourseStartAlert());
-            courseEndReminderField.setChecked(testCourse.isCourseEndAlert());
+            courseTitleField.setText(selectedCourse.getCourseName());
+            courseStartDateField.setText(selectedCourse.getCourseStartDate());
+            courseEndDateField.setText(selectedCourse.getCourseEndDate());
+            courseStartReminderField.setChecked(selectedCourse.isCourseStartAlert());
+            courseEndReminderField.setChecked(selectedCourse.isCourseEndAlert());
         }
-
         populateStatusFields();
         populateMentorFields();
         populateAssessmentFields();
     }
-    public void populateMentorFields(){
+    private void populateMentorFields(){
 
         for(Mentor mentor : Mentor.getAllMentorArray()){
 
@@ -107,8 +106,7 @@ public class CourseEditActivity extends AppCompatActivity {
             mentorListField.addView(mentorCheckboxField);
         }
     }
-    public void populateAssessmentFields(){
-
+    private void populateAssessmentFields(){
 
         for(Assessment assessment : Assessment.getAllAssessmentArray()){
 
@@ -131,13 +129,10 @@ public class CourseEditActivity extends AppCompatActivity {
             assessmentListField.addView(assessmentCheckboxField);
         }
     }
-    public void populateStatusFields(){
-        // Create an ArrayAdapter using the string array and a default spinner layout
+    private void populateStatusFields(){
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.status_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
         courseStatusField.setAdapter(adapter);
 
         if(!newCourse) {
@@ -160,7 +155,7 @@ public class CourseEditActivity extends AppCompatActivity {
         }
     }
 
-    public void updateCourse(){
+    private void updateCourse(){
 
         String courseTitle = courseTitleField.getText().toString();
         String courseStartDate = courseStartDateField.getText().toString();
@@ -179,7 +174,7 @@ public class CourseEditActivity extends AppCompatActivity {
         updateCourseMentor();
         updateCourseAssessment();
     }
-    public void updateCourseMentor(){
+    private void updateCourseMentor(){
         selectedCourse.clearCourseMentorDB();
 
         for(int i = 0; i < mentorListField.getChildCount(); i++){
@@ -190,7 +185,7 @@ public class CourseEditActivity extends AppCompatActivity {
             }
         }
     }
-    public void updateCourseAssessment(){
+    private void updateCourseAssessment(){
 
         selectedCourse.clearCourseAssessmentDB();
         for(int i = 0; i < assessmentListField.getChildCount(); i++){
@@ -204,7 +199,6 @@ public class CourseEditActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.save, menu);
         return true;
     }
@@ -220,8 +214,8 @@ public class CourseEditActivity extends AppCompatActivity {
 
                 Intent data = new Intent();
                 data.putExtra("courseObject", selectedCourse);
-                setResult(RESULT_OK, data); // set result code and bundle data for response
-                finish(); // closes the activity, pass data to parent
+                setResult(RESULT_OK, data);
+                finish();
 
                 return true;
             case R.id.button_delete:

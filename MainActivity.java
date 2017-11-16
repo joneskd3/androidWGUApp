@@ -1,5 +1,6 @@
 package com.example.hello.kjschedule;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,18 +14,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+@SuppressWarnings("unused")
 public class MainActivity extends AppCompatActivity {
 
-    SharedPreferences sharedPref;
-    SharedPreferences.Editor editor;
-    boolean reminderOnStart;
-    Button reminderButton;
+    private SharedPreferences sharedPref;
+    private SharedPreferences.Editor editor;
+    private boolean reminderOnStart;
+    private Button reminderButton;
     public static SQLiteDatabase appDatabase = null;
 
-    StringBuilder upcomingCourseStart;
-    StringBuilder upcomingCourseEnd;
-    StringBuilder upcomingAssessment;
-
+    @SuppressLint("CommitPrefEdits")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -35,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
         //create sharedPreference to hold reminder on start preferences
         sharedPref = this.getSharedPreferences("PREFERENCE_FILE_KEY",Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
         reminderOnStart = sharedPref.getBoolean("reminderOnStart", true);  // getting boolean
         reminderButton = findViewById(R.id.button_reminder);
 
@@ -74,24 +74,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void reminder(){
-        upcomingCourseStart = new StringBuilder();
-        upcomingCourseEnd = new StringBuilder();
-        upcomingAssessment = new StringBuilder();
+    private void reminder(){
+        StringBuilder upcomingCourseStart = new StringBuilder();
+        StringBuilder upcomingCourseEnd = new StringBuilder();
+        StringBuilder upcomingAssessment = new StringBuilder();
 
         //Course Reminders
         for(Course course : Course.getAllCourseArray()){
             if  (course.isCourseStartAlert()){
-                upcomingCourseStart. append("-" + course.getCourseName() + " (" + course.getCourseStartDate() + ")\n");
+                upcomingCourseStart.append("-").append(course.getCourseName()).append(" (").append(course.getCourseStartDate()).append(")\n");
             }
             if (course.isCourseEndAlert()){
-                upcomingCourseEnd.append("-" + course.getCourseName() + " (" + course.getCourseEndDate() + ")\n");
+                upcomingCourseEnd.append("-").append(course.getCourseName()).append(" (").append(course.getCourseEndDate()).append(")\n");
             }
         }
         //Assessment Reminders
         for(Assessment assessment : Assessment.getAllAssessmentArray()){
             if (assessment.isAssessmentReminder()){
-                upcomingAssessment.append("-" + assessment.getAssessmentTitle() + " (" + assessment.getAssessmentDueDate() + ")\n");
+                upcomingAssessment.append("-").append(assessment.getAssessmentTitle()).append(" (").append(assessment.getAssessmentDueDate()).append(")\n");
             }
         }
         //Create Alert
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /*Creates test data */
-    public void createTestData() {
+    private void createTestData() {
 
         if(Course.getAllCourseArray().size() == 0) {
             new Course("Test Course I", "12/01/2017",true,
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e("DB ERROR", "Database Creation Error");
         }
     }
-    public void createCourseTable() {
+    private void createCourseTable() {
         appDatabase.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS course " +
                 "(courseId INTEGER PRIMARY KEY, " +
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
                 "courseStatus VARCHAR);"
         );
     }
-    public void createCourseMentorTable() {
+    private void createCourseMentorTable() {
         appDatabase.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS courseMentor " +
                 "(courseId INTEGER, " +
@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
                 ");"
         );
     }
-    public void createAssessmentTable(){
+    private void createAssessmentTable(){
         appDatabase.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS assessment " +
                 "(assessmentId INTEGER PRIMARY KEY, " +
@@ -221,14 +221,14 @@ public class MainActivity extends AppCompatActivity {
                 "assessmentReminder INTEGER)"
         );
     }
-    public void createCourseAssessmentTable() {
+    private void createCourseAssessmentTable() {
         appDatabase.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS courseAssessment " +
                 "(courseId INTEGER, " +
                 "assessmentId INTEGER);"
         );
     }
-    public void createMentorTable() {
+    private void createMentorTable() {
         appDatabase.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS mentor " +
                 "(mentorId INTEGER PRIMARY KEY, " +
@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
                 "mentorEmail VARCHAR);"
         );
     }
-    public void createTermTable() {
+    private void createTermTable() {
         appDatabase.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS term " +
                 "(termId INTEGER PRIMARY KEY, " +
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
                 "termEnd VARCHAR);"
         );
     }
-    public void createTermCourseTable() {
+    private void createTermCourseTable() {
         appDatabase.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS termCourse " +
                 "(termId INTEGER, " +
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 "PRIMARY KEY (termId, courseId));"
         );
     }
-    public void createNoteTable() {
+    private void createNoteTable() {
         appDatabase.execSQL("" +
                 "CREATE TABLE IF NOT EXISTS note " +
                 "(noteId INTEGER PRIMARY KEY, " +

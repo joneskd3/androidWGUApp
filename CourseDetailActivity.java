@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class CourseDetailActivity extends AppCompatActivity {
 
-    public Course selectedCourse; //currently displayed Course object
+    private Course selectedCourse; //currently displayed Course object
 
     private final int REQUEST_CODE = 20; //used to determine result type
 
@@ -47,15 +47,22 @@ public class CourseDetailActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
-        populateFields(selectedCourse); //updates fields with values
+        populateFields(); //updates fields with values
     }
+    @Override
+    public void onResume() {
+     super.onResume();
+     populateFields();
+    }
+
     /*Updates list of mentors */
-    public void populateMentor(){
+    private void populateMentor(){
 
         if(selectedCourse.getCourseMentorArray().size() > 0) {
-            ArrayAdapter<Mentor> arrayAdapter = new ArrayAdapter<Mentor>(CourseDetailActivity.this,
+            ArrayAdapter<Mentor> arrayAdapter = new ArrayAdapter<>(CourseDetailActivity.this,
                     android.R.layout.simple_list_item_1, selectedCourse.getCourseMentorArray());
 
             mentorList.setAdapter(arrayAdapter);
@@ -68,7 +75,7 @@ public class CourseDetailActivity extends AppCompatActivity {
 
                     Intent intent = new Intent(CourseDetailActivity.this, MentorDetailActivity.class);
                     intent.putExtra("mentorObject", selectedMentor);
-                    intent.putExtra("mode", 2); // pass arbitrary data to launched activity
+                    intent.putExtra("mode", 2);
                     startActivity(intent);
                 }
             });
@@ -77,18 +84,17 @@ public class CourseDetailActivity extends AppCompatActivity {
             ArrayList<String> emptyArray = new ArrayList<>(); //formats mentor array list for display
             emptyArray.add("No Mentors Assigned"); //If no mentors assigned
 
-            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(CourseDetailActivity.this,
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(CourseDetailActivity.this,
                     android.R.layout.simple_list_item_1, emptyArray);
 
             mentorList.setAdapter(arrayAdapter);
         }
     }
     /*Updates list of assessments */
-    public void populateAssessment() {
-
+    private void populateAssessment() {
 
         if (selectedCourse.getCourseAssessmentArray().size() > 0) {
-            ArrayAdapter<Assessment> arrayAdapter = new ArrayAdapter<Assessment>(CourseDetailActivity.this,
+            ArrayAdapter<Assessment> arrayAdapter = new ArrayAdapter<>(CourseDetailActivity.this,
                     android.R.layout.simple_list_item_1, selectedCourse.getCourseAssessmentArray());
 
             assessmentList.setAdapter(arrayAdapter);
@@ -101,7 +107,7 @@ public class CourseDetailActivity extends AppCompatActivity {
 
                     Intent intent = new Intent(CourseDetailActivity.this, AssessmentDetailActivity.class);
                     intent.putExtra("assessmentObject", selectedAssessment);
-                    intent.putExtra("mode", 2); // pass arbitrary data to launched activity
+                    intent.putExtra("mode", 2);
                     startActivity(intent);
                 }
             });
@@ -111,42 +117,41 @@ public class CourseDetailActivity extends AppCompatActivity {
             ArrayList<String> emptyArray = new ArrayList<>(); //formats mentor array list for display
             emptyArray.add("No Assessments Assigned"); //If no mentors assigned
 
-            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(CourseDetailActivity.this,
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(CourseDetailActivity.this,
                     android.R.layout.simple_list_item_1, emptyArray);
 
             assessmentList.setAdapter(arrayAdapter);
         }
     }
     /*Updates all other fields */
-    public void populateFields(Course testCourse) {
+    private void populateFields() {
 
         populateFieldVariables();
 
         /*Update Fields*/
-        courseTitleField.setText(testCourse.getCourseName());
-        courseStartDateField.setText(testCourse.getCourseStartDate());
-        courseEndDateField.setText(testCourse.getCourseEndDate());
+        courseTitleField.setText(selectedCourse.getCourseName());
+        courseStartDateField.setText(selectedCourse.getCourseStartDate());
+        courseEndDateField.setText(selectedCourse.getCourseEndDate());
 
-        if(testCourse.isCourseStartAlert()){
+        if(selectedCourse.isCourseStartAlert()){
             courseStartReminder.setImageResource(R.mipmap.ic_notifications_active_black_24dp);
         } else {
             courseStartReminder.setImageResource(R.mipmap.ic_notifications_off_black_24dp);
         }
 
-        if(testCourse.isCourseEndAlert()){
+        if(selectedCourse.isCourseEndAlert()){
             courseEndReminder.setImageResource(R.mipmap.ic_notifications_active_black_24dp);
         } else {
             courseEndReminder.setImageResource(R.mipmap.ic_notifications_off_black_24dp);
         }
 
-        courseStatus.setText(testCourse.getCourseStatus());
+        courseStatus.setText(selectedCourse.getCourseStatus());
 
         populateMentor();
         populateAssessment();
     }
-
-    public void populateFieldVariables(){
-            /*Field Variables*/
+    private void populateFieldVariables(){
+        /*Field Variables*/
         courseTitleField = findViewById(R.id.text_title);
         courseStartDateField = findViewById(R.id.text_phone);
         courseEndDateField = findViewById(R.id.text_email);
@@ -155,24 +160,19 @@ public class CourseDetailActivity extends AppCompatActivity {
         courseStatus = findViewById(R.id.text_type);
         mentorList = findViewById(R.id.list_mentor);
         assessmentList = findViewById(R.id.list_assessment);
-
-
     }
-
-
 
     /*Returns result after launching edit activity */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             selectedCourse = data.getParcelableExtra("courseObject");
-            populateFields(selectedCourse);
+            populateFields();
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
         }
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.course, menu);
         return true;
     }
@@ -183,7 +183,7 @@ public class CourseDetailActivity extends AppCompatActivity {
             case R.id.edit_button:
                 Intent intent = new Intent(this, CourseEditActivity.class);
                 intent.putExtra("courseObject", selectedCourse);
-                intent.putExtra("mode", 2); // pass arbitrary data to launched activity
+                intent.putExtra("mode", 2);
                 intent.putExtra("editCourse",true);
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;
@@ -191,7 +191,7 @@ public class CourseDetailActivity extends AppCompatActivity {
             case R.id.note_button:
                 Intent noteIntent = new Intent(this, NoteListActivity.class);
                 noteIntent.putExtra("courseObject", selectedCourse);
-                noteIntent.putExtra("mode", 2); // pass arbitrary data to launched activity
+                noteIntent.putExtra("mode", 2);
                 startActivityForResult(noteIntent, REQUEST_CODE);
                 return true;
 

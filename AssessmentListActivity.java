@@ -17,37 +17,34 @@ import android.widget.Toast;
 public class AssessmentListActivity extends AppCompatActivity {
 
     private final int REQUEST_CODE = 20; //used to determine result type
-    private Assessment selectedAssessment;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_assessment_list);
 
-
           /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
         populateAssessmentList();
     }
     @Override
     public void onResume() {
-        super.onResume(); // Always call the superclass method first
-
+        super.onResume();
         populateAssessmentList();
     }
 
-
-    public void populateAssessmentList(){
+    private void populateAssessmentList(){
 
         final ListView assessmentList = findViewById(R.id.list_assessments);
 
         if (Assessment.getAllAssessmentArray().size() > 0) {
-            ArrayAdapter<Assessment> arrayAdapter = new ArrayAdapter<Assessment>(this, android.R.layout.simple_list_item_1, Assessment.getAllAssessmentArray());
+            ArrayAdapter<Assessment> arrayAdapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_list_item_1, Assessment.getAllAssessmentArray());
             assessmentList.setAdapter(arrayAdapter);
 
             assessmentList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -66,7 +63,6 @@ public class AssessmentListActivity extends AppCompatActivity {
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.add, menu);
         return true;
     }
@@ -76,11 +72,7 @@ public class AssessmentListActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.toolbar_add_button:
                 Intent intent = new Intent(this, AssessmentEditActivity.class);
-
-                //Assessment newAssessment = new Assessment();
-
-                //intent.putExtra("assessmentObject", newAssessment);
-                intent.putExtra("New", true); // pass arbitrary data to launched activity
+                intent.putExtra("New", true);
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;
 

@@ -1,36 +1,34 @@
 package com.example.hello.kjschedule;
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.example.hello.kjschedule.MainActivity.appDatabase;
 
-/**
- * Created by owner on 11/9/2017.
- */
-
+@SuppressWarnings("unused")
 public class Term implements Parcelable{
 
-    public static HashMap<Integer,Term> allTermMap = new HashMap<>();
+    //mapping
+    @SuppressLint("UseSparseArrays")
+    static HashMap<Integer,Term> allTermMap = new HashMap<>();
 
+    //instance variables
     private int termId;
     private String termName;
     private String termStart;
     private String termEnd;
 
-    private static ArrayList<Term> allTermArray = new ArrayList<>();
-
     private static int highestTermId = 0;
 
-    public Term(){
+    //constructors
+    Term(){
         this("","","");
     }
-
-    public Term(String termName, String termStart, String termEnd) {
+    Term(String termName, String termStart, String termEnd) {
         this.getHighestId();
         this.termId = highestTermId;
 
@@ -42,7 +40,7 @@ public class Term implements Parcelable{
         allTermMap.put(this.termId,this);
         insertIntoDB();
     }
-    public Term(int termId, String termName, String termStart, String termEnd) {
+    private Term(int termId, String termName, String termStart, String termEnd) {
         this.termId = termId;
 
         this.termName = termName;
@@ -52,43 +50,34 @@ public class Term implements Parcelable{
         allTermMap.put(this.termId,this);
     }
 
-
-    public int getTermId() {
+    //setters and getters
+    int getTermId() {
         return termId;
     }
-
-    public void setTermId(int termId) {
-        this.termId = termId;
-    }
-
-    public String getTermName() {
+    String getTermName() {
         return termName;
     }
-
-    public void setTermName(String termName) {
+    void setTermName(String termName) {
         this.termName = termName;
         this.updateDB();
     }
-
-    public String getTermStart() {
+    String getTermStart() {
         return termStart;
     }
-
-    public void setTermStart(String termStart) {
+    void setTermStart(String termStart) {
         this.termStart = termStart;
         this.updateDB();
     }
-
-    public String getTermEnd() {
+    String getTermEnd() {
         return termEnd;
     }
-
-    public void setTermEnd(String termEnd) {
+    void setTermEnd(String termEnd) {
         this.termEnd = termEnd;
         this.updateDB();
     }
 
-    public ArrayList<Course> getTermCourseArray() {
+    //arrays
+    ArrayList<Course> getTermCourseArray() {
 
         ArrayList<Course> termCourseArray = new ArrayList<>();
 
@@ -108,9 +97,7 @@ public class Term implements Parcelable{
         }
         return termCourseArray;
     }
-
-
-    public static ArrayList<Term> getAllTermArray() {
+    static ArrayList<Term> getAllTermArray() {
         ArrayList<Term> allTermArray = new ArrayList<>();
 
         Cursor cursor = appDatabase.rawQuery("SELECT * FROM term", null);
@@ -129,16 +116,94 @@ public class Term implements Parcelable{
         return allTermArray;
     }
 
-    @Override
-    public String toString() {
-        return this.getTermName() + "\t[" + this.getTermStart() + " - " + this.getTermEnd() + "]";
+    /*Database Methods*/
+    private void getHighestId(){
+
+        String query = "SELECT MAX (termId) FROM term";
+        Cursor cursor = appDatabase.rawQuery(query,null);
+        cursor.moveToFirst();
+        highestTermId = cursor.getInt(0) + 1;
+        cursor.close();
+    }
+    private void insertIntoDB(){
+        appDatabase.execSQL(
+                "INSERT INTO term(termId, termName, termStart, termEnd) " +
+                        "VALUES(" +
+                        this.termId + ", '" +
+                        this.termName + "', '" +
+                        this.termStart + "', '" +
+                        this.termEnd + "')"
+        );
+    }
+    void insertIntoDB(Course course){
+        appDatabase.execSQL(
+                "INSERT INTO termCourse(termId, courseId) " +
+                        "VALUES(" +
+                        this.termId + ", " +
+                        course.getCourseId() + ")"
+        );
+    }
+    private void updateDB(){
+        appDatabase.execSQL(
+                "UPDATE term " +
+                        "SET " +
+                        "termId = " + this.termId + ", " +
+                        "termName = '" + this.termName + "', " +
+                        "termStart = '" + this.termStart + "', " +
+                        "termEnd = '" + (this.termEnd ) + "' " +
+                        "WHERE termId = " + this.termId
+        );
+    }
+    void clearTermCourseDB(){
+        appDatabase.execSQL("DELETE FROM termCourse WHERE termId = " + this.getTermId());
+    }
+    public void deleteFromDB(){
+        appDatabase.execSQL("DELETE from term WHERE termId = " + this.termId);
+        appDatabase.execSQL("DELETE from termCourse WHERE termId = " + this.termId);
+    }
+    static void createFromDB() {
+
+        Cursor cursor = appDatabase.rawQuery("SELECT * FROM term", null);
+
+        int termIdField = cursor.getColumnIndex("termId");
+        int termNameField = cursor.getColumnIndex("termName");
+        int termStartField = cursor.getColumnIndex("termStart");
+        int termEndField = cursor.getColumnIndex("termEnd");
+
+        if (cursor.getCount() > 0)
+        {
+            cursor.moveToFirst();
+            do {
+                int termId = cursor.getInt(termIdField);
+                String termName = cursor.getString(termNameField);
+                String termStart = cursor.getString(termStartField);
+                String termEnd = cursor.getString(termEndField);
+
+                new Term(termId, termName, termStart, termEnd);
+
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
     }
 
+    //parcelable methods
+    public static final Parcelable.Creator<Term> CREATOR
+            = new Parcelable.Creator<Term>() {
+
+        @Override
+        public Term createFromParcel(Parcel in) {
+            return new Term(in);
+        }
+
+        @Override
+        public Term[] newArray(int size) {
+            return new Term[size];
+        }
+    };
     @Override
     public int describeContents() {
         return 0;
     }
-
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(termId);
@@ -153,96 +218,8 @@ public class Term implements Parcelable{
         termEnd = in.readString();
     }
 
-    /*Database Methods*/
-    public void getHighestId(){
-
-        String query = "SELECT MAX (termId) FROM term";
-
-        Cursor cursor = appDatabase.rawQuery(query,null);
-
-        cursor.moveToFirst();
-
-        highestTermId = cursor.getInt(0) + 1;
+    @Override
+    public String toString() {
+        return this.getTermName() + "\t[" + this.getTermStart() + " - " + this.getTermEnd() + "]";
     }
-    public void insertIntoDB(){
-        appDatabase.execSQL(
-                "INSERT INTO term(termId, termName, termStart, termEnd) " +
-                        "VALUES(" +
-                        this.termId + ", '" +
-                        this.termName + "', '" +
-                        this.termStart + "', '" +
-                        this.termEnd + "')"
-        );
-    }
-    public void insertIntoDB(Course course){
-        appDatabase.execSQL(
-                "INSERT INTO termCourse(termId, courseId) " +
-                        "VALUES(" +
-                        this.termId + ", " +
-                        course.getCourseId() + ")"
-        );
-    }
-    public void updateDB(){
-        appDatabase.execSQL(
-                "UPDATE term " +
-                        "SET " +
-                        "termid = " + this.termId + ", " +
-                        "termname = '" + this.termName + "', " +
-                        "termStart = '" + this.termStart + "', " +
-                        "termEnd = '" + (this.termEnd ) + "' " +
-                        "WHERE termId = " + this.termId
-        );
-    }
-    public void clearTermCourseDB(){
-        appDatabase.execSQL("DELETE FROM termCourse WHERE termId = " + this.getTermId());
-    }
-    public void deleteFromDB(){
-        appDatabase.execSQL("DELETE from term WHERE termId = " + this.termId);
-        appDatabase.execSQL("DELETE from termCourse WHERE termId = " + this.termId);
-    }
-    public static void createFromDB() {
-
-        Cursor cursor = appDatabase.rawQuery("SELECT * FROM term", null);
-
-        int termIdField = cursor.getColumnIndex("termId");
-        int termNameField = cursor.getColumnIndex("termName");
-        int termStartField = cursor.getColumnIndex("termStart");
-        int termEndField = cursor.getColumnIndex("termEnd");
-
-        if (cursor.getCount() > 0) {
-
-            cursor.moveToFirst();
-
-            do {
-                int termId = cursor.getInt(termIdField);
-                String termName = cursor.getString(termNameField);
-                String termStart = cursor.getString(termStartField);
-                String termEnd = cursor.getString(termEndField);
-
-                Term term = new Term(termId, termName, termStart, termEnd);
-
-            } while (cursor.moveToNext());
-        }
-    }
-
-
-    public static final Parcelable.Creator<Term> CREATOR
-            = new Parcelable.Creator<Term>() {
-
-        // This simply calls our new constructor (typically private) and
-        // passes along the unmarshalled `Parcel`, and then returns the new object!
-        @Override
-        public Term createFromParcel(Parcel in) {
-            return new Term(in);
-        }
-
-        // We just need to copy this and change the type to match our class.
-        @Override
-        public Term[] newArray(int size) {
-            return new Term[size];
-        }
-    };
-
-
-
 }

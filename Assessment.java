@@ -1,5 +1,6 @@
 package com.example.hello.kjschedule;
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -8,9 +9,11 @@ import java.util.HashMap;
 
 import static com.example.hello.kjschedule.MainActivity.appDatabase;
 
+@SuppressWarnings("unused")
 public class Assessment implements Parcelable {
     //mapping table
-    public static HashMap<Integer,Assessment> allAssessmentMap = new HashMap<>();
+    @SuppressLint("UseSparseArrays")
+    static HashMap<Integer,Assessment> allAssessmentMap = new HashMap<>();
 
     //instance variables
     private int assessmentId;
@@ -38,7 +41,7 @@ public class Assessment implements Parcelable {
         this.insertIntoDB();
     }
     //Database constructor - id exists
-    public Assessment(int assessmentId, String assessmentType, String assessmentDescription, String assessmentDueDate, boolean assessmentReminder) {
+    private Assessment(int assessmentId, String assessmentType, String assessmentDescription, String assessmentDueDate, boolean assessmentReminder) {
         this.assessmentId = assessmentId;
         this.assessmentType = assessmentType;
         this.assessmentDescription = assessmentDescription;
@@ -157,9 +160,9 @@ public class Assessment implements Parcelable {
                 String assessmentType = cursor.getString(assessmentTypeField);
                 String assessmentDescription = cursor.getString(assessmentDescriptionField);
                 String assessmentDueDate = cursor.getString(assessmentDueDateField);
-                Boolean assementReminder = cursor.getInt(assessmentReminderField) == 1;
+                Boolean assessmentReminder = cursor.getInt(assessmentReminderField) == 1;
 
-                new Assessment(assessmentId, assessmentType, assessmentDescription, assessmentDueDate, assementReminder);
+                new Assessment(assessmentId, assessmentType, assessmentDescription, assessmentDueDate, assessmentReminder);
 
             } while (cursor.moveToNext());
             cursor.close();

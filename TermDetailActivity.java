@@ -19,47 +19,46 @@ import java.util.ArrayList;
 
 public class TermDetailActivity extends AppCompatActivity {
 
-    public Term selectedTerm; //currently displayed Course object
+    private Term selectedTerm; //currently displayed Course object
     private final int REQUEST_CODE = 20; //used to determine result type
-
 
     private TextView termTitleField;
     private TextView termStartDateField;
     private TextView termEndDateField;
     private ListView termCourseListField;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_term_detail);
 
-
-        //retrieves Course object from calling activity
+        //retrieves object from calling activity
         if(getIntent().getParcelableExtra("termObject") != null){
             selectedTerm = getIntent().getParcelableExtra("termObject");
             selectedTerm = Term.allTermMap.get(selectedTerm.getTermId());
-
         }
-        //editTerm = getIntent().getBooleanExtra("editCourse",false);
-
 
         /* Set up interface */
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
 
         populateFields();
     }
-
-    public void populateFieldVariables(){
+    @Override
+    public void onResume() {
+        super.onResume();
+        populateFields();
+    }
+    private void populateFieldVariables(){
         termTitleField = findViewById(R.id.term_text_title);
         termStartDateField = findViewById(R.id.text_phone);
         termEndDateField = findViewById(R.id.text_email);
         termCourseListField = findViewById(R.id.term_list_course);
     }
-    public void populateFields() {
+    private void populateFields() {
 
         populateFieldVariables();
 
@@ -70,11 +69,10 @@ public class TermDetailActivity extends AppCompatActivity {
 
         populateTermCourseFields();
     }
-    public void populateTermCourseFields(){
-
+    private void populateTermCourseFields(){
 
         if(selectedTerm.getTermCourseArray().size() > 0) {
-            ArrayAdapter<Course> arrayAdapter = new ArrayAdapter<Course>(TermDetailActivity.this,
+            ArrayAdapter<Course> arrayAdapter = new ArrayAdapter<>(TermDetailActivity.this,
                     android.R.layout.simple_list_item_1, selectedTerm.getTermCourseArray());
 
             termCourseListField.setAdapter(arrayAdapter);
@@ -91,12 +89,11 @@ public class TermDetailActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             });
-
         } else {
             ArrayList<String> emptyArray = new ArrayList<>(); //formats mentor array list for display
             emptyArray.add("No Courses Assigned"); //If no mentors assigned
 
-            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(TermDetailActivity.this,
+            ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(TermDetailActivity.this,
                     android.R.layout.simple_list_item_1, emptyArray);
 
             termCourseListField.setAdapter(arrayAdapter);
@@ -111,14 +108,7 @@ public class TermDetailActivity extends AppCompatActivity {
         }
     }
     @Override
-    public void onResume() {
-        super.onResume(); // Always call the superclass method first
-
-        populateFields();
-    }
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.edit, menu);
         return true;
     }
@@ -129,12 +119,12 @@ public class TermDetailActivity extends AppCompatActivity {
             case R.id.edit_button:
                 Intent intent = new Intent(this, TermEditActivity.class);
                 intent.putExtra("termObject", selectedTerm);
-                intent.putExtra("mode", 2); // pass arbitrary data to launched activity
+                intent.putExtra("mode", 2);
                 intent.putExtra("editTerm",true);
                 startActivityForResult(intent, REQUEST_CODE);
                 return true;
 
-            case android.R.id.home: //handles back button
+            case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
 
                 return true;
@@ -143,7 +133,4 @@ public class TermDetailActivity extends AppCompatActivity {
                 return true;
         }
     }
-
-
-
 }

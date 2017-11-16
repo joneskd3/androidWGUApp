@@ -8,20 +8,17 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MentorEditActivity extends AppCompatActivity {
 
-    public Mentor selectedMentor; //currently displayed Course object
-    private final int REQUEST_CODE = 20; //used to dementorine result type
+    private Mentor selectedMentor; //currently displayed Course object
     private boolean newMentor;
 
     private TextView mentorNameField;
     private TextView mentorPhoneField;
     private TextView mentorEmailField;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +27,6 @@ public class MentorEditActivity extends AppCompatActivity {
         newMentor = getIntent().getBooleanExtra("New", false);
 
         populateFieldVariables();
-
-
 
         if (!newMentor) {
             selectedMentor = getIntent().getParcelableExtra("mentorObject");
@@ -43,11 +38,11 @@ public class MentorEditActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
-
     }
 
-    public void updateMentor() {
+    private void updateMentor() {
 
         String mentorName = mentorNameField.getText().toString();
         String mentorPhone = mentorPhoneField.getText().toString();
@@ -57,13 +52,12 @@ public class MentorEditActivity extends AppCompatActivity {
         selectedMentor.setMentorPhone(mentorPhone);
         selectedMentor.setMentorEmail(mentorEmail);
     }
-
-    public void populateFieldVariables(){
+    private void populateFieldVariables(){
         mentorNameField = findViewById(R.id.text_name);
         mentorPhoneField = findViewById(R.id.text_phone);
         mentorEmailField = findViewById(R.id.text_email);
     }
-    public void populateFields() {
+    private void populateFields() {
 
         populateFieldVariables();
 
@@ -75,7 +69,6 @@ public class MentorEditActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.save, menu);
         return true;
     }
@@ -92,9 +85,9 @@ public class MentorEditActivity extends AppCompatActivity {
 
                 Intent data = new Intent();
                 data.putExtra("mentorObject", selectedMentor);
-                setResult(RESULT_OK, data); // set result code and bundle data for response
+                setResult(RESULT_OK, data);
                 Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
-                finish(); // closes the activity, pass data to parent
+                finish();
 
                 return true;
             case R.id.button_delete:
@@ -106,7 +99,7 @@ public class MentorEditActivity extends AppCompatActivity {
                 Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
 
 
-            case android.R.id.home: //handles back button
+            case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
 

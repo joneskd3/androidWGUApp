@@ -16,8 +16,7 @@ import android.widget.Toast;
 
 public class AssessmentEditActivity extends AppCompatActivity {
 
-    public Assessment selectedAssessment; //currently displayed Course object
-    private final int REQUEST_CODE = 20; //used to deassessmentine result type
+    private Assessment selectedAssessment; //currently displayed object
     private boolean newAssessment;
 
     private EditText assessmentTitleField;
@@ -25,11 +24,11 @@ public class AssessmentEditActivity extends AppCompatActivity {
     private Spinner assessmentTypeField;
     private Switch assessmentReminderField;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_assessment_edit);
+
         newAssessment = getIntent().getBooleanExtra("New", false);
 
         populateFieldVariables();
@@ -46,34 +45,17 @@ public class AssessmentEditActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setDisplayHomeAsUpEnabled(true);
-
-
     }
 
-    public void updateAssessment() {
-
-        String assessmentTitle = assessmentTitleField.getText().toString();
-        String assessmentDueDate = assessmentStartField.getText().toString();
-        String assessmentType = assessmentTypeField.getSelectedItem().toString();
-        Boolean assessmentReminder = assessmentReminderField.isChecked();
-
-
-        selectedAssessment.setAssessmentTitle(assessmentTitle);
-        selectedAssessment.setAssessmentDueDate(assessmentDueDate);
-        selectedAssessment.setAssessmentType(assessmentType);
-        selectedAssessment.setAssessmentReminder(assessmentReminder);
-
-    }
-
-    public void populateFieldVariables() {
+    private void populateFieldVariables() {
         assessmentTitleField = findViewById(R.id.text_title);
         assessmentStartField = findViewById(R.id.text_phone);
         assessmentTypeField = findViewById(R.id.text_type);
         assessmentReminderField = findViewById(R.id.img_reminder);
     }
-
-    public void populateFields() {
+    private void populateFields() {
 
         /*Update Fields*/
         assessmentTitleField.setText(selectedAssessment.getAssessmentTitle());
@@ -82,8 +64,7 @@ public class AssessmentEditActivity extends AppCompatActivity {
 
         populateTypeField();
     }
-
-    public void populateTypeField() {
+    private void populateTypeField() {
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.assessment_type_array, android.R.layout.simple_spinner_item);
@@ -108,13 +89,24 @@ public class AssessmentEditActivity extends AppCompatActivity {
         }
     }
 
+    private void updateAssessment() {
+
+        String assessmentTitle = assessmentTitleField.getText().toString();
+        String assessmentDueDate = assessmentStartField.getText().toString();
+        String assessmentType = assessmentTypeField.getSelectedItem().toString();
+        Boolean assessmentReminder = assessmentReminderField.isChecked();
+
+        selectedAssessment.setAssessmentTitle(assessmentTitle);
+        selectedAssessment.setAssessmentDueDate(assessmentDueDate);
+        selectedAssessment.setAssessmentType(assessmentType);
+        selectedAssessment.setAssessmentReminder(assessmentReminder);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.save, menu);
         return true;
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -123,12 +115,12 @@ public class AssessmentEditActivity extends AppCompatActivity {
                 if (newAssessment) {
                     selectedAssessment = new Assessment();
                 }
-                updateAssessment();//updates assessment info
+                updateAssessment();
 
                 Intent data = new Intent();
                 data.putExtra("assessmentObject", selectedAssessment);
-                setResult(RESULT_OK, data); // set result code and bundle data for response
-                finish(); // closes the activity, pass data to parent
+                setResult(RESULT_OK, data);
+                finish();
 
                 return true;
 

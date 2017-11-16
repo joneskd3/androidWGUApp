@@ -1,5 +1,6 @@
 package com.example.hello.kjschedule;
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -11,10 +12,12 @@ import java.util.HashMap;
 import static com.example.hello.kjschedule.MainActivity.appDatabase;
 
 
+@SuppressWarnings("unused")
 public class Course implements Parcelable {
 
     //Mapping table
-    public static HashMap<Integer, Course> allCourseMap = new HashMap<Integer, Course>();
+    @SuppressLint("UseSparseArrays")
+    static HashMap<Integer, Course> allCourseMap = new HashMap<>();
 
     //Instance variables
     private int courseId;
@@ -49,8 +52,8 @@ public class Course implements Parcelable {
         this.insertIntoDB();
     }
     /*Constructor for DB population*/
-    public Course(int courseId, String courseName, String courseStartDate, boolean courseStartAlert,
-                  String courseEndDate, boolean courseEndAlert, String courseStatus) {
+    private Course(int courseId, String courseName, String courseStartDate, boolean courseStartAlert,
+                   String courseEndDate, boolean courseEndAlert, String courseStatus) {
 
         this.courseId = courseId;
 
